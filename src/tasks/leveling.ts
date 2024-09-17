@@ -12,6 +12,7 @@ import {
   effectModifier,
   equip,
   equippedItem,
+  faxbot,
   getWorkshed,
   haveEffect,
   haveEquipped,
@@ -126,7 +127,7 @@ import { forbiddenEffects } from "../resources";
 
 const useCinch = !get("instant_saveCinch", false);
 const baseBoozes = $items`bottle of rum, boxed wine, bottle of gin, bottle of vodka, bottle of tequila, bottle of whiskey`;
-const freeFightMonsters: Monster[] = $monsters`Witchess Bishop, Witchess King, Witchess Witch, sausage goblin, Eldritch Tentacle`;
+const freeFightMonsters: Monster[] = $monsters`Witchess Bishop, Witchess King, Witchess Witch, sausage goblin, Eldritch Tentacle, Black Crayon Beetle`;
 const craftedCBBFoods: Item[] = $items`honey bun of Boris, roasted vegetable of Jarlsberg, Pete's rich ricotta, plain calzone`;
 const craftedCBBEffects: Effect[] = craftedCBBFoods.map((it) => effectModifier(it, "effect"));
 let triedCraftingCBBFoods = false;
@@ -899,8 +900,8 @@ export const LevelingQuest: Quest = {
       completed: () =>
         powerlevelingLocation() !== $location`The Neverending Party` ||
         haveEffect($effect`Glowing Blue`) !== 10 ||
-        myMp() >= 500
-        // || haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
+        myMp() >= 500,
+      // || haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
       do: $location`The Dire Warren`,
       outfit: () => ({
         ...baseOutfit(false),
@@ -1215,6 +1216,48 @@ export const LevelingQuest: Quest = {
       },
     },
     {
+      name: "Fax Black Crayon Beetle",
+      completed: () => get("_photocopyUsed"),
+      do: (): void => {
+        if (
+          have($item`photocopied monster`) &&
+          get("photocopyMonster") !== $monster`Black Crayon Beetle`
+        ) {
+          cliExecute("fax send");
+        }
+
+        // If we're whitelisted to the CSLooping clan, use that to grab the ungulith instead
+        // if (Clan.getWhitelisted().find((c) => c.name.toLowerCase() === "csloopers unite")) {
+        //   Clan.with("CSLoopers Unite", () => cliExecute("fax receive"));
+        // } else {
+        //   if (!visitUrl("messages.php?box=Outbox").includes("#3626664")) {
+        //     print("Requesting whitelist to CS clan...", "blue");
+        //     cliExecute("csend to 3626664 || Requesting access to CS clan");
+        //   }
+        //   cliExecute("chat");
+        // }
+
+        if (
+          (have($item`photocopied monster`) || faxbot($monster`Black Crayon Beetle`)) &&
+          get("photocopyMonster") === $monster`Black Crayon Beetle`
+        ) {
+          use($item`photocopied monster`);
+        }
+      },
+      outfit: baseOutfit,
+      combat: new CombatStrategy().macro(() =>
+        Macro.externalIf(
+          get("_monsterHabitatsFightsLeft") <= 1 &&
+            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
+            have($skill`Recall Facts: Monster Habitats`) &&
+            (haveFreeBanish() ||
+              Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
+          Macro.trySkill($skill`Recall Facts: Monster Habitats`),
+        ).default(useCinch),
+      ),
+      limit: { tries: 5 },
+    },
+    {
       name: "Restore cinch",
       completed: () =>
         get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
@@ -1324,7 +1367,7 @@ export const LevelingQuest: Quest = {
         !have($item`backup camera`) ||
         !freeFightMonsters.includes(get("lastCopyableMonster") ?? $monster.none) ||
         get("_backUpUses") >= 11 - clamp(get("instant_saveBackups", 0), 0, 11) ||
-        myBasestat(mainStat) >= 190, // no longer need to back up Witchess Kings
+        myBasestat(mainStat) >= targetBaseMainStat - targetBaseMainStatGap, // no longer need to back up Witchess Kings
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Back-Up to your Last Enemy`).default(useCinch),
