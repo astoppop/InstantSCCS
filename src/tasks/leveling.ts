@@ -1216,48 +1216,6 @@ export const LevelingQuest: Quest = {
       },
     },
     {
-      name: "Fax Black Crayon Beetle",
-      completed: () => get("_photocopyUsed"),
-      do: (): void => {
-        if (
-          have($item`photocopied monster`) &&
-          get("photocopyMonster") !== $monster`Black Crayon Beetle`
-        ) {
-          cliExecute("fax send");
-        }
-
-        // If we're whitelisted to the CSLooping clan, use that to grab the ungulith instead
-        // if (Clan.getWhitelisted().find((c) => c.name.toLowerCase() === "csloopers unite")) {
-        //   Clan.with("CSLoopers Unite", () => cliExecute("fax receive"));
-        // } else {
-        //   if (!visitUrl("messages.php?box=Outbox").includes("#3626664")) {
-        //     print("Requesting whitelist to CS clan...", "blue");
-        //     cliExecute("csend to 3626664 || Requesting access to CS clan");
-        //   }
-        //   cliExecute("chat");
-        // }
-
-        if (
-          (have($item`photocopied monster`) || faxbot($monster`Black Crayon Beetle`)) &&
-          get("photocopyMonster") === $monster`Black Crayon Beetle`
-        ) {
-          use($item`photocopied monster`);
-        }
-      },
-      outfit: baseOutfit,
-      combat: new CombatStrategy().macro(() =>
-        Macro.externalIf(
-          get("_monsterHabitatsFightsLeft") <= 1 &&
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-            have($skill`Recall Facts: Monster Habitats`) &&
-            (haveFreeBanish() ||
-              Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
-          Macro.trySkill($skill`Recall Facts: Monster Habitats`),
-        ).default(useCinch),
-      ),
-      limit: { tries: 5 },
-    },
-    {
       name: "Restore cinch",
       completed: () =>
         get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
@@ -1328,13 +1286,7 @@ export const LevelingQuest: Quest = {
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(() =>
         Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
-          .externalIf(
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-              have($skill`Recall Facts: Monster Habitats`) &&
-              (haveFreeBanish() ||
-                Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
-            Macro.trySkill($skill`Recall Facts: Monster Habitats`),
-          )
+          .trySkill($skill`Recall Facts: Monster Habitats`)
           .default(useCinch),
       ),
       outfit: () => ({
@@ -1383,6 +1335,58 @@ export const LevelingQuest: Quest = {
         sellMiscellaneousItems();
       },
       limit: { tries: 11 },
+    },
+    {
+      name: "Fax Black Crayon Beetle",
+      completed: () => get("_photocopyUsed"),
+      prepare: (): void => {
+        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+        unbreakableUmbrella();
+        garbageShirt();
+        usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
+        restoreMp(50);
+        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+          if (myMeat() >= 250) buy($item`red rocket`, 1);
+        }
+      },
+      do: (): void => {
+        if (
+          have($item`photocopied monster`) &&
+          get("photocopyMonster") !== $monster`Black Crayon Beetle`
+        ) {
+          cliExecute("fax send");
+        }
+
+        // If we're whitelisted to the CSLooping clan, use that to grab the ungulith instead
+        // if (Clan.getWhitelisted().find((c) => c.name.toLowerCase() === "csloopers unite")) {
+        //   Clan.with("CSLoopers Unite", () => cliExecute("fax receive"));
+        // } else {
+        //   if (!visitUrl("messages.php?box=Outbox").includes("#3626664")) {
+        //     print("Requesting whitelist to CS clan...", "blue");
+        //     cliExecute("csend to 3626664 || Requesting access to CS clan");
+        //   }
+        //   cliExecute("chat");
+        // }
+
+        if (
+          (have($item`photocopied monster`) || faxbot($monster`Black Crayon Beetle`)) &&
+          get("photocopyMonster") === $monster`Black Crayon Beetle`
+        ) {
+          use($item`photocopied monster`);
+        }
+      },
+      outfit: baseOutfit,
+      combat: new CombatStrategy().macro(() =>
+        Macro.externalIf(
+          get("_monsterHabitatsFightsLeft") <= 1 &&
+            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
+            have($skill`Recall Facts: Monster Habitats`) &&
+            (haveFreeBanish() ||
+              Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
+          Macro.trySkill($skill`Recall Facts: Monster Habitats`),
+        ).default(useCinch),
+      ),
+      limit: { tries: 5 },
     },
     {
       name: "Kramco",
