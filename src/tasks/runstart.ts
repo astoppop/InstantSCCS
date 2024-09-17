@@ -33,7 +33,6 @@ import {
   storageAmount,
   takeStorage,
   toInt,
-  totalFreeRests,
   turnsPlayed,
   use,
   useFamiliar,
@@ -65,8 +64,11 @@ import {
   Pantogram,
   SongBoom,
 } from "libram";
+import { mapMonster } from "libram/dist/resources/2020/Cartography";
 import { canConfigure, setConfiguration, Station } from "libram/dist/resources/2022/TrainSet";
+import Macro from "../combat";
 import { Quest } from "../engine/task";
+import { chooseFamiliar, cookbookbat, melodramedary, sombrero } from "../familiars";
 import {
   getGarden,
   goVote,
@@ -78,11 +80,8 @@ import {
   useCenser,
   useParkaSpit,
 } from "../lib";
-import Macro from "../combat";
-import { mapMonster } from "libram/dist/resources/2020/Cartography";
 import { baseOutfit, unbreakableUmbrella } from "../outfit";
 import { excludedFamiliars } from "../resources";
-import { chooseFamiliar, cookbookbat, melodramedary, sombrero } from "../familiars";
 
 export const RunStartQuest: Quest = {
   name: "Run Start",
@@ -208,25 +207,25 @@ export const RunStartQuest: Quest = {
       do: () => cliExecute("Briefcase e ml"),
       limit: { tries: 1 },
     },
-    {
-      name: "Restore mp",
-      completed: () =>
-        get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
-        myMp() >= Math.min(200, myMaxmp()),
-      prepare: (): void => {
-        if (have($item`Newbiesport™ tent`)) use($item`Newbiesport™ tent`);
-      },
-      do: (): void => {
-        if (get("chateauAvailable")) {
-          visitUrl("place.php?whichplace=chateau&action=chateau_restbox");
-        } else if (get("getawayCampsiteUnlocked")) {
-          visitUrl("place.php?whichplace=campaway&action=campaway_tentclick");
-        } else {
-          visitUrl("campground.php?action=rest");
-        }
-      },
-      outfit: { modifier: "myst, mp, -tie" },
-    },
+    // {
+    //   name: "Restore mp",
+    //   completed: () =>
+    //     get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
+    //     myMp() >= Math.min(200, myMaxmp()),
+    //   prepare: (): void => {
+    //     if (have($item`Newbiesport™ tent`)) use($item`Newbiesport™ tent`);
+    //   },
+    //   do: (): void => {
+    //     if (get("chateauAvailable")) {
+    //       visitUrl("place.php?whichplace=chateau&action=chateau_restbox");
+    //     } else if (get("getawayCampsiteUnlocked")) {
+    //       visitUrl("place.php?whichplace=campaway&action=campaway_tentclick");
+    //     } else {
+    //       visitUrl("campground.php?action=rest");
+    //     }
+    //   },
+    //   outfit: { modifier: "myst, mp, -tie" },
+    // },
     {
       name: "Borrowed Time",
       prepare: (): void => {

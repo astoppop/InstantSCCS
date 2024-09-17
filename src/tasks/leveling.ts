@@ -1,4 +1,4 @@
-import { Quest } from "../engine/task";
+import { CombatStrategy, OutfitSpec } from "grimoire-kolmafia";
 import {
   adv1,
   autosell,
@@ -80,7 +80,10 @@ import {
   Witchess,
   withChoice,
 } from "libram";
-import { CombatStrategy, OutfitSpec } from "grimoire-kolmafia";
+import { mapMonster } from "libram/dist/resources/2020/Cartography";
+import { chooseQuest, rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
+import Macro, { haveFreeBanish } from "../combat";
+import { Quest } from "../engine/task";
 import {
   abstractionXpEffect,
   abstractionXpItem,
@@ -116,10 +119,7 @@ import {
   xpWishEffect,
 } from "../lib";
 import { baseOutfit, docBag, garbageShirt, unbreakableUmbrella } from "../outfit";
-import Macro, { haveFreeBanish } from "../combat";
 import { forbiddenEffects } from "../resources";
-import { mapMonster } from "libram/dist/resources/2020/Cartography";
-import { chooseQuest, rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
 
 const useCinch = !get("instant_saveCinch", false);
 const baseBoozes = $items`bottle of rum, boxed wine, bottle of gin, bottle of vodka, bottle of tequila, bottle of whiskey`;
@@ -531,25 +531,25 @@ export const LevelingQuest: Quest = {
       do: () => cliExecute("bastille.ash mainstat brutalist"),
       limit: { tries: 1 },
     },
-    {
-      name: "Restore mp",
-      completed: () =>
-        get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
-        myMp() >= Math.min(200, myMaxmp()),
-      prepare: (): void => {
-        if (have($item`Newbiesport™ tent`)) use($item`Newbiesport™ tent`);
-      },
-      do: (): void => {
-        if (get("chateauAvailable")) {
-          visitUrl("place.php?whichplace=chateau&action=chateau_restbox");
-        } else if (get("getawayCampsiteUnlocked")) {
-          visitUrl("place.php?whichplace=campaway&action=campaway_tentclick");
-        } else {
-          visitUrl("campground.php?action=rest");
-        }
-      },
-      outfit: { modifier: "myst, mp, -tie" },
-    },
+    // {
+    //   name: "Restore mp",
+    //   completed: () =>
+    //     get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
+    //     myMp() >= Math.min(200, myMaxmp()),
+    //   prepare: (): void => {
+    //     if (have($item`Newbiesport™ tent`)) use($item`Newbiesport™ tent`);
+    //   },
+    //   do: (): void => {
+    //     if (get("chateauAvailable")) {
+    //       visitUrl("place.php?whichplace=chateau&action=chateau_restbox");
+    //     } else if (get("getawayCampsiteUnlocked")) {
+    //       visitUrl("place.php?whichplace=campaway&action=campaway_tentclick");
+    //     } else {
+    //       visitUrl("campground.php?action=rest");
+    //     }
+    //   },
+    //   outfit: { modifier: "myst, mp, -tie" },
+    // },
     {
       name: "Sept-ember Mouthwash",
       ready: () => getWorkshed() !== $item`model train set` || have($effect`Hot Soupy Garbage`),
@@ -865,7 +865,8 @@ export const LevelingQuest: Quest = {
           if (myMeat() >= 250) buy($item`red rocket`, 1);
         }
       },
-      completed: () => have($effect`Everything Looks Blue`) || haveCBBIngredients(false),
+      completed: () => have($effect`Everything Looks Blue`),
+      // || haveCBBIngredients(false),
       do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Curse of Weaksauce`)
@@ -898,8 +899,8 @@ export const LevelingQuest: Quest = {
       completed: () =>
         powerlevelingLocation() !== $location`The Neverending Party` ||
         haveEffect($effect`Glowing Blue`) !== 10 ||
-        myMp() >= 500 ||
-        haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
+        myMp() >= 500
+        // || haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
       do: $location`The Dire Warren`,
       outfit: () => ({
         ...baseOutfit(false),
