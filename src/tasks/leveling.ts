@@ -1343,6 +1343,14 @@ export const LevelingQuest: Quest = {
         restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
         unbreakableUmbrella();
         garbageShirt();
+        if (
+          !have($effect`Mystically Oiled`) &&
+          !have($item`ointment of the occult`) &&
+          $items`scrumptious reagent, grapefruit`.every((it) => have(it))
+        ) {
+          create($item`ointment of the occult`, 1);
+        
+        tryAcquiringEffect($effect`Mystically Oiled`);
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
         restoreMp(50);
         if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
