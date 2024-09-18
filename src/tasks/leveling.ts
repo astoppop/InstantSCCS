@@ -1368,6 +1368,10 @@ export const LevelingQuest: Quest = {
         //   cliExecute("chat");
         // }
 
+        if (!have($item`photocopied monster`)) {
+          cliExecute("faxbot Black Crayon Beetle");
+        }
+
         if (
           (have($item`photocopied monster`) || faxbot($monster`Black Crayon Beetle`)) &&
           get("photocopyMonster") === $monster`Black Crayon Beetle`
