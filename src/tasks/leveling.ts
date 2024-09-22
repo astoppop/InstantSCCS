@@ -1254,7 +1254,9 @@ export const LevelingQuest: Quest = {
       completed: () => get("_monsterHabitatsFightsLeft") <= 1,
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(() =>
-        Macro.if_($monster`fluffy bunny`, Macro.banish().abort()).default(useCinch),
+        Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
+          .trySkill($skill`Bowl Sideways`)
+          .default(useCinch),
       ),
       outfit: () => ({
         ...baseOutfit,
@@ -1290,6 +1292,7 @@ export const LevelingQuest: Quest = {
       combat: new CombatStrategy().macro(() =>
         Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
           .trySkill($skill`Recall Facts: Monster Habitats`)
+          .trySkill($skill`Bowl Sideways`)
           .default(useCinch),
       ),
       outfit: () => ({
@@ -1325,7 +1328,9 @@ export const LevelingQuest: Quest = {
         myBasestat(mainStat) >= targetBaseMainStat - targetBaseMainStatGap, // no longer need to back up Witchess Kings
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Back-Up to your Last Enemy`).default(useCinch),
+        Macro.trySkill($skill`Back-Up to your Last Enemy`)
+          .trySkill($skill`Bowl Sideways`)
+          .default(useCinch),
       ),
       outfit: () => ({
         ...baseOutfit(),
@@ -1338,6 +1343,26 @@ export const LevelingQuest: Quest = {
         sellMiscellaneousItems();
       },
       limit: { tries: 11 },
+    },
+    {
+      name: "Drink Bee's Knees",
+      completed: () => have($effect`On the Trolley`) || get("instant_saveBeesKnees", false),
+      do: (): void => {
+        if (myMeat() < 500) throw new Error("Insufficient Meat to purchase Bee's Knees!");
+        restoreMp(50);
+        tryAcquiringEffect($effect`Ode to Booze`);
+        visitUrl(`clan_viplounge.php?preaction=speakeasydrink&drink=5&pwd=${myHash()}`); // Bee's Knees
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Acquire Lyle's Buff",
+      completed: () => get("_lyleFavored"),
+      do: (): void => {
+        tryAcquiringEffect($effect`Favored by Lyle`);
+        tryAcquiringEffect($effect`Starry-Eyed`);
+      },
+      limit: { tries: 1 },
     },
     {
       name: "Fax Black Crayon Beetle",
@@ -1671,26 +1696,6 @@ export const LevelingQuest: Quest = {
         }
 
         triedCraftingCBBFoods = true;
-      },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Drink Bee's Knees",
-      after: ["Powerlevel"],
-      completed: () => have($effect`On the Trolley`) || get("instant_saveBeesKnees", false),
-      do: (): void => {
-        if (myMeat() < 500) throw new Error("Insufficient Meat to purchase Bee's Knees!");
-        tryAcquiringEffect($effect`Ode to Booze`);
-        visitUrl(`clan_viplounge.php?preaction=speakeasydrink&drink=5&pwd=${myHash()}`); // Bee's Knees
-      },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Acquire Lyle's Buff",
-      completed: () => get("_lyleFavored"),
-      do: (): void => {
-        tryAcquiringEffect($effect`Favored by Lyle`);
-        tryAcquiringEffect($effect`Starry-Eyed`);
       },
       limit: { tries: 1 },
     },
