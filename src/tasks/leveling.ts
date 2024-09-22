@@ -645,6 +645,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Cast Prevent Scurvy",
+      ready: () => myMp() >= 200,
       completed: () => !have($skill`Prevent Scurvy and Sobriety`) || get("_preventScurvy"),
       prepare: () => restoreMp(mpCost($skill`Prevent Scurvy and Sobriety`)),
       do: () => useSkill($skill`Prevent Scurvy and Sobriety`),
@@ -652,6 +653,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Cast Perfect Freeze",
+      ready: () => myMp() >= 200,
       completed: () =>
         !have($skill`Perfect Freeze`) ||
         get("_perfectFreezeUsed") ||
@@ -662,6 +664,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Drink Perfect Drink",
+      ready: () => myMp() >= 200,
       completed: () =>
         myInebriety() >= 3 ||
         !have($item`perfect ice cube`) ||
@@ -727,7 +730,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Drink Astral Pilsners",
-      ready: () => myLevel() >= 11,
+      ready: () => myLevel() >= 11 && myMp() >= 200,
       completed: () =>
         myInebriety() >= inebrietyLimit() ||
         (!have($item`astral six-pack`) &&
@@ -1380,15 +1383,8 @@ export const LevelingQuest: Quest = {
         }
       },
       outfit: baseOutfit,
-      combat: new CombatStrategy().macro(() =>
-        Macro.externalIf(
-          get("_monsterHabitatsFightsLeft") <= 1 &&
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-            have($skill`Recall Facts: Monster Habitats`) &&
-            (haveFreeBanish() ||
-              Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
-          Macro.trySkill($skill`Recall Facts: Monster Habitats`),
-        ).default(useCinch),
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Recall Facts: Monster Habitats`).default(useCinch),
       ),
       limit: { tries: 5 },
     },
