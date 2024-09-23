@@ -1258,16 +1258,7 @@ export const LevelingQuest: Quest = {
           .trySkill($skill`Bowl Sideways`)
           .default(useCinch),
       ),
-      outfit: () => ({
-        ...baseOutfit,
-        ...(Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)
-          ? {}
-          : {
-              offhand: $item`latte lovers member's mug`,
-              acc1: $item`Kremlin's Greatest Briefcase`,
-              acc2: $item`Lil' Doctor™ bag`,
-            }),
-      }),
+      outfit: baseOutfit,
       post: (): void => {
         sendAutumnaton();
         sellMiscellaneousItems();
@@ -1295,16 +1286,7 @@ export const LevelingQuest: Quest = {
           .trySkill($skill`Bowl Sideways`)
           .default(useCinch),
       ),
-      outfit: () => ({
-        ...baseOutfit,
-        ...(Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)
-          ? {}
-          : {
-              offhand: $item`latte lovers member's mug`,
-              acc1: $item`Kremlin's Greatest Briefcase`,
-              acc2: $item`Lil' Doctor™ bag`,
-            }),
-      }),
+      outfit: baseOutfit,
       post: (): void => {
         sendAutumnaton();
         sellMiscellaneousItems();
@@ -1409,7 +1391,9 @@ export const LevelingQuest: Quest = {
       },
       outfit: baseOutfit,
       combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Recall Facts: Monster Habitats`).default(useCinch),
+        Macro.trySkill($skill`Recall Facts: Monster Habitats`)
+          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+          .default(useCinch),
       ),
       limit: { tries: 5 },
     },
