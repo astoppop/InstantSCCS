@@ -1,4 +1,4 @@
-import { CombatStrategy, OutfitSpec } from "grimoire-kolmafia";
+import { CombatStrategy } from "grimoire-kolmafia";
 import {
   adv1,
   autosell,
@@ -48,7 +48,6 @@ import {
   $items,
   $location,
   $monster,
-  $monsters,
   $skill,
   $slot,
   $stat,
@@ -59,7 +58,6 @@ import {
   CombatLoversLocket,
   CommunityService,
   get,
-  getBanishedMonsters,
   getKramcoWandererChance,
   have,
   haveInCampground,
@@ -487,15 +485,16 @@ export const RunStartQuest: Quest = {
         use($item`model train set`);
         setConfiguration([
           Station.GAIN_MEAT, // meat (we don't gain meat during free banishes)
-          Station.TOWER_FIZZY, // mp regen
-          Station.TOWER_FROZEN, // hot resist (useful)
           Station.COAL_HOPPER, // double stat gain
+          Station.TOWER_SEWAGE, // cold res for mouthwash
           statStation, // main stats
           Station.VIEWING_PLATFORM, // all stats
           Station.WATER_BRIDGE, // +ML
-          have($item`Sept-Ember Censer`) && !get("instant_saveEmbers", false)
-            ? Station.TOWER_SEWAGE // cold res for mouthwash
-            : Station.CANDY_FACTORY, // candies (we don't get items during free banishes)
+          Station.TOWER_FROZEN, // hot resist (useful)
+          Station.TOWER_FIZZY, // mp regen
+          // have($item`Sept-Ember Censer`) && !get("instant_saveEmbers", false)
+          //   ? Station.TOWER_SEWAGE // cold res for mouthwash
+          //   : Station.CANDY_FACTORY, // candies (we don't get items during free banishes)
         ]);
       },
       limit: { tries: 1 },
@@ -513,7 +512,9 @@ export const RunStartQuest: Quest = {
         get("instant_skipEarlyTrainsetMeat", false),
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Darts: Aim for the Bullseye`).attack(),
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
       ),
       outfit: () => ({
         ...baseOutfit(false),
@@ -793,74 +794,74 @@ export const RunStartQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Novelty Tropical Skeleton",
-      prepare: (): void => {
-        if (useParkaSpit) {
-          cliExecute("parka dilophosaur");
-        } else if (!have($item`yellow rocket`) && !have($effect`Everything Looks Yellow`)) {
-          if (myMeat() < 250) throw new Error("Insufficient Meat to purchase yellow rocket!");
-          buy($item`yellow rocket`, 1);
-        }
-        if (have($item`Roman Candelabra`) && !have($effect`Everything Looks Yellow`)) {
-          equip($slot`offhand`, $item`Roman Candelabra`);
-        } else {
-          unbreakableUmbrella();
-        }
-        if (get("_snokebombUsed") === 0) restoreMp(50);
-        if (haveEquipped($item`miniature crystal ball`)) equip($slot`familiar`, $item.none);
-      },
-      completed: () =>
-        mainStat === $stat`Moxie` ||
-        (have($item`cherry`) &&
-          ($monsters`remaindered skeleton, swarm of skulls, factory-irregular skeleton, novelty tropical skeleton`.filter(
-            (m) => Array.from(getBanishedMonsters().values()).includes(m),
-          ).length >= (have($skill`Map the Monsters`) ? 2 : 3) ||
-            $location`The Skeleton Store`.turnsSpent >= 3)),
-      do: $location`The Skeleton Store`,
-      combat: new CombatStrategy().macro(() =>
-        Macro.if_(
-          "!haseffect Everything Looks Yellow",
-          Macro.if_(
-            $monster`novelty tropical skeleton`,
-            Macro.externalIf(useParkaSpit, Macro.trySkill($skill`Spit jurassic acid`))
-              .trySkill($skill`Blow the Yellow Candle!`)
-              .tryItem($item`yellow rocket`),
-          ),
-        )
-          .externalIf(
-            !Array.from(getBanishedMonsters().keys()).includes($skill`Bowl a Curveball`),
-            Macro.trySkill($skill`Bowl a Curveball`),
-          )
-          .externalIf(
-            !have($effect`Everything Looks Green`) && haveEquipped($item`spring shoes`),
-            Macro.trySkill($skill`Spring Kick`).trySkill($skill`Spring Away`),
-          )
-          .externalIf(
-            !Array.from(getBanishedMonsters().keys()).includes($skill`Snokebomb`),
-            Macro.trySkill($skill`Snokebomb`),
-          )
-          .externalIf(
-            !Array.from(getBanishedMonsters().keys()).includes($skill`Monkey Slap`),
-            Macro.trySkill($skill`Monkey Slap`),
-          )
-          .abort(),
-      ),
-      outfit: (): OutfitSpec => {
-        return {
-          shirt: useParkaSpit ? $item`Jurassic Parka` : undefined,
-          acc2: $item`cursed monkey's paw`,
-          familiar: chooseFamiliar(false),
-          modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip Kramco Sausage-o-Matic™`,
-        };
-      },
-      post: (): void => {
-        if (have($item`MayDay™ supply package`) && !get("instant_saveMayday", false))
-          use($item`MayDay™ supply package`, 1);
-        if (have($item`space blanket`)) autosell($item`space blanket`, 1);
-      },
-      limit: { tries: 4 },
-    },
+    // {
+    //   name: "Novelty Tropical Skeleton",
+    //   prepare: (): void => {
+    //     if (useParkaSpit) {
+    //       cliExecute("parka dilophosaur");
+    //     } else if (!have($item`yellow rocket`) && !have($effect`Everything Looks Yellow`)) {
+    //       if (myMeat() < 250) throw new Error("Insufficient Meat to purchase yellow rocket!");
+    //       buy($item`yellow rocket`, 1);
+    //     }
+    //     if (have($item`Roman Candelabra`) && !have($effect`Everything Looks Yellow`)) {
+    //       equip($slot`offhand`, $item`Roman Candelabra`);
+    //     } else {
+    //       unbreakableUmbrella();
+    //     }
+    //     if (get("_snokebombUsed") === 0) restoreMp(50);
+    //     if (haveEquipped($item`miniature crystal ball`)) equip($slot`familiar`, $item.none);
+    //   },
+    //   completed: () =>
+    //     mainStat === $stat`Moxie` ||
+    //     (have($item`cherry`) &&
+    //       ($monsters`remaindered skeleton, swarm of skulls, factory-irregular skeleton, novelty tropical skeleton`.filter(
+    //         (m) => Array.from(getBanishedMonsters().values()).includes(m),
+    //       ).length >= (have($skill`Map the Monsters`) ? 2 : 3) ||
+    //         $location`The Skeleton Store`.turnsSpent >= 3)),
+    //   do: $location`The Skeleton Store`,
+    //   combat: new CombatStrategy().macro(() =>
+    //     Macro.if_(
+    //       "!haseffect Everything Looks Yellow",
+    //       Macro.if_(
+    //         $monster`novelty tropical skeleton`,
+    //         Macro.externalIf(useParkaSpit, Macro.trySkill($skill`Spit jurassic acid`))
+    //           .trySkill($skill`Blow the Yellow Candle!`)
+    //           .tryItem($item`yellow rocket`),
+    //       ),
+    //     )
+    //       .externalIf(
+    //         !Array.from(getBanishedMonsters().keys()).includes($skill`Bowl a Curveball`),
+    //         Macro.trySkill($skill`Bowl a Curveball`),
+    //       )
+    //       .externalIf(
+    //         !have($effect`Everything Looks Green`) && haveEquipped($item`spring shoes`),
+    //         Macro.trySkill($skill`Spring Kick`).trySkill($skill`Spring Away`),
+    //       )
+    //       .externalIf(
+    //         !Array.from(getBanishedMonsters().keys()).includes($skill`Snokebomb`),
+    //         Macro.trySkill($skill`Snokebomb`),
+    //       )
+    //       .externalIf(
+    //         !Array.from(getBanishedMonsters().keys()).includes($skill`Monkey Slap`),
+    //         Macro.trySkill($skill`Monkey Slap`),
+    //       )
+    //       .abort(),
+    //   ),
+    //   outfit: (): OutfitSpec => {
+    //     return {
+    //       shirt: useParkaSpit ? $item`Jurassic Parka` : undefined,
+    //       acc2: $item`cursed monkey's paw`,
+    //       familiar: chooseFamiliar(false),
+    //       modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip Kramco Sausage-o-Matic™`,
+    //     };
+    //   },
+    //   post: (): void => {
+    //     if (have($item`MayDay™ supply package`) && !get("instant_saveMayday", false))
+    //       use($item`MayDay™ supply package`, 1);
+    //     if (have($item`space blanket`)) autosell($item`space blanket`, 1);
+    //   },
+    //   limit: { tries: 4 },
+    // },
     {
       name: "Chewing Gum",
       completed: () =>

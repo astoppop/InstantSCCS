@@ -1,4 +1,4 @@
-import { CombatStrategy, OutfitSpec } from "grimoire-kolmafia";
+import { CombatStrategy } from "grimoire-kolmafia";
 import {
   adv1,
   autosell,
@@ -11,7 +11,6 @@ import {
   Effect,
   effectModifier,
   equip,
-  equippedItem,
   faxbot,
   getWorkshed,
   haveEffect,
@@ -92,9 +91,7 @@ import {
   abstractionXpEffect,
   abstractionXpItem,
   bestShadowRift,
-  burnLibram,
   canPull,
-  chooseLibram,
   generalStoreXpEffect,
   getSynthColdBuff,
   getSynthExpBuff,
@@ -110,7 +107,6 @@ import {
   reagentBoosterEffect,
   reagentBoosterIngredient,
   reagentBoosterItem,
-  refillLatte,
   sendAutumnaton,
   snapperXpItem,
   synthExpBuff,
@@ -439,28 +435,28 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Pull Daypass",
-      completed: () =>
-        powerlevelingLocation() !== $location`Uncle Gator's Country Fun-Time Liquid Waste Sluice` ||
-        get("stenchAirportAlways") ||
-        get("_stenchAirportToday"),
-      do: (): void => {
-        if (storageAmount($item`one-day ticket to Dinseylandfill`) === 0) {
-          print(
-            "Uh oh! You do not seem to have a one-day ticket to Dinseylandfill in Hagnk's",
-            "red",
-          );
-          print(
-            "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
-            "red",
-          );
-        }
-        takeStorage($item`one-day ticket to Dinseylandfill`, 1);
-        use($item`one-day ticket to Dinseylandfill`, 1);
-      },
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Pull Daypass",
+    //   completed: () =>
+    //     powerlevelingLocation() !== $location`Uncle Gator's Country Fun-Time Liquid Waste Sluice` ||
+    //     get("stenchAirportAlways") ||
+    //     get("_stenchAirportToday"),
+    //   do: (): void => {
+    //     if (storageAmount($item`one-day ticket to Dinseylandfill`) === 0) {
+    //       print(
+    //         "Uh oh! You do not seem to have a one-day ticket to Dinseylandfill in Hagnk's",
+    //         "red",
+    //       );
+    //       print(
+    //         "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
+    //         "red",
+    //       );
+    //     }
+    //     takeStorage($item`one-day ticket to Dinseylandfill`, 1);
+    //     use($item`one-day ticket to Dinseylandfill`, 1);
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Wish for XP% buff",
       // TODO: Make this completed if we've already wished twice with the paw (requires mafia tracking)
@@ -555,8 +551,28 @@ export const LevelingQuest: Quest = {
     //   outfit: { modifier: "myst, mp, -tie" },
     // },
     {
+      name: "Free Run",
+      completed: () =>
+        !useCenser ||
+        get("availableSeptEmbers") === 0 ||
+        have($effect`Double Hot Soupy Garbage`) ||
+        getWorkshed() !== $item`model train set`,
+      do: $location`The Dire Warren`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Reflex Hammer`)
+          .trySkill($skill`Snokebomb`)
+          .abort(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`Lil' Doctor™ bag`,
+      }),
+      limit: { tries: 4 },
+    },
+    {
       name: "Sept-ember Mouthwash",
-      ready: () => getWorkshed() !== $item`model train set` || have($effect`Hot Soupy Garbage`),
+      ready: () =>
+        getWorkshed() !== $item`model train set` || have($effect`Double Hot Soupy Garbage`),
       completed: () => !useCenser || get("availableSeptEmbers") === 0,
       prepare: (): void => {
         // Ready to Survive gives +1 cold res
@@ -871,7 +887,8 @@ export const LevelingQuest: Quest = {
       },
       completed: () => have($effect`Everything Looks Blue`),
       // || haveCBBIngredients(false),
-      do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
+      do: $location`The Dire Warren`,
+      // do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Curse of Weaksauce`)
           .tryItem($item`blue rocket`)
@@ -1076,42 +1093,42 @@ export const LevelingQuest: Quest = {
         sellMiscellaneousItems();
       },
     },
-    {
-      name: "Snokebomb",
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        unbreakableUmbrella();
-        restoreMp(50);
+    // {
+    //   name: "Snokebomb",
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     unbreakableUmbrella();
+    //     restoreMp(50);
 
-        if (
-          myClass() === $class`Pastamancer` &&
-          have($item`Sept-Ember Censer`) &&
-          have($item`Daylight Shavings Helmet`) &&
-          get("lastBeardBuff") === 0 && // We have not gotten the beard buff yet
-          !get("instant_saveEmbers", false) &&
-          !have($item`bembershoot`) // We have not used the mouthwash yet
-        )
-          equip($slot`hat`, $item`Daylight Shavings Helmet`); // Grab Grizzly Beard for mouthwash
-      },
-      completed: () => get("_snokebombUsed") >= 3 - get("instant_saveSBForInnerElf", 0),
-      do: powerlevelingLocation(),
-      combat: new CombatStrategy().macro(Macro.trySkill($skill`Snokebomb`).abort()),
-      outfit: () => ({
-        ...baseOutfit(),
-        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
-      }),
-      choices: {
-        1094: 5,
-        1115: 6,
-        1322: 2,
-        1324: 5,
-      },
-      post: (): void => {
-        sendAutumnaton();
-        sellMiscellaneousItems();
-      },
-      limit: { tries: 4 },
-    },
+    //     if (
+    //       myClass() === $class`Pastamancer` &&
+    //       have($item`Sept-Ember Censer`) &&
+    //       have($item`Daylight Shavings Helmet`) &&
+    //       get("lastBeardBuff") === 0 && // We have not gotten the beard buff yet
+    //       !get("instant_saveEmbers", false) &&
+    //       !have($item`bembershoot`) // We have not used the mouthwash yet
+    //     )
+    //       equip($slot`hat`, $item`Daylight Shavings Helmet`); // Grab Grizzly Beard for mouthwash
+    //   },
+    //   completed: () => get("_snokebombUsed") >= 3 - get("instant_saveSBForInnerElf", 0),
+    //   do: powerlevelingLocation(),
+    //   combat: new CombatStrategy().macro(Macro.trySkill($skill`Snokebomb`).abort()),
+    //   outfit: () => ({
+    //     ...baseOutfit(),
+    //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+    //   }),
+    //   choices: {
+    //     1094: 5,
+    //     1115: 6,
+    //     1322: 2,
+    //     1324: 5,
+    //   },
+    //   post: (): void => {
+    //     sendAutumnaton();
+    //     sellMiscellaneousItems();
+    //   },
+    //   limit: { tries: 4 },
+    // },
     {
       name: "Get Totem and Saucepan",
       completed: () => have($item`turtle totem`) && have($item`saucepan`),
@@ -1618,7 +1635,7 @@ export const LevelingQuest: Quest = {
         }
       },
       outfit: baseOutfit,
-      limit: { tries: 60 },
+      limit: { tries: 1 },
       choices: {
         1094: 5,
         1115: 6,
@@ -1894,83 +1911,83 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Free Kills and More Fights",
-      after: ["Craft and Eat CBB Foods", "Drink Bee's Knees"],
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        if (equippedItem($slot`offhand`) !== $item`latte lovers member's mug`) {
-          unbreakableUmbrella();
-        }
-        garbageShirt();
-        docBag();
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
-        restoreMp(50);
-      },
-      outfit: (): OutfitSpec => {
-        if (
-          chooseLibram() === $skill.none ||
-          !have($item`latte lovers member's mug`) ||
-          get("_latteRefillsUsed") >= 3
-        )
-          return baseOutfit();
-        else
-          return {
-            ...baseOutfit(),
-            offhand: $item`latte lovers member's mug`,
-          };
-      },
-      completed: () =>
-        myBasestat(mainStat) >= targetBaseMainStat &&
-        (get("_shatteringPunchUsed") >= 3 || !have($skill`Shattering Punch`)) &&
-        (get("_gingerbreadMobHitUsed") || !have($skill`Gingerbread Mob Hit`)) &&
-        (haveCBBIngredients(true) || overleveled()),
-      do: powerlevelingLocation(),
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Feel Pride`)
-          .trySkill($skill`Cincho: Confetti Extravaganza`)
-          .trySkill($skill`Gulp Latte`)
-          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
-          .trySkill($skill`Chest X-Ray`)
-          .trySkill($skill`Shattering Punch`)
-          .trySkill($skill`Gingerbread Mob Hit`)
-          .trySkill($skill`Bowl Sideways`)
-          .default(useCinch),
-      ),
-      choices: {
-        1094: 5,
-        1115: 6,
-        1322: 2,
-        1324: 5,
-      },
-      post: (): void => {
-        if (
-          itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
-          itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
-          !have($effect`Pretty Delicious`) &&
-          !get("instant_saveRicottaCasserole", false)
-        ) {
-          if (!have($item`baked veggie ricotta casserole`))
-            create($item`baked veggie ricotta casserole`, 1);
-          eat($item`baked veggie ricotta casserole`, 1);
-        }
-        if (
-          itemAmount($item`St. Sneaky Pete's Whey`) >= 1 &&
-          !have($effect`Awfully Wily`) &&
-          !get("instant_saveWileyWheyBar", false)
-        ) {
-          create($item`Pete's wiley whey bar`, 1);
-          eat($item`Pete's wiley whey bar`, 1);
-        }
-        haveCBBIngredients(true, true);
-        if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
-        sendAutumnaton();
-        sellMiscellaneousItems();
-        burnLibram(500);
-        refillLatte();
-      },
-      limit: { tries: 22 },
-    },
+    // {
+    //   name: "Free Kills and More Fights",
+    //   after: ["Craft and Eat CBB Foods", "Drink Bee's Knees"],
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     if (equippedItem($slot`offhand`) !== $item`latte lovers member's mug`) {
+    //       unbreakableUmbrella();
+    //     }
+    //     garbageShirt();
+    //     docBag();
+    //     usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
+    //     restoreMp(50);
+    //   },
+    //   outfit: (): OutfitSpec => {
+    //     if (
+    //       chooseLibram() === $skill.none ||
+    //       !have($item`latte lovers member's mug`) ||
+    //       get("_latteRefillsUsed") >= 3
+    //     )
+    //       return baseOutfit();
+    //     else
+    //       return {
+    //         ...baseOutfit(),
+    //         offhand: $item`latte lovers member's mug`,
+    //       };
+    //   },
+    //   completed: () =>
+    //     myBasestat(mainStat) >= targetBaseMainStat &&
+    //     (get("_shatteringPunchUsed") >= 3 || !have($skill`Shattering Punch`)) &&
+    //     (get("_gingerbreadMobHitUsed") || !have($skill`Gingerbread Mob Hit`)) &&
+    //     (haveCBBIngredients(true) || overleveled()),
+    //   do: powerlevelingLocation(),
+    //   combat: new CombatStrategy().macro(
+    //     Macro.trySkill($skill`Feel Pride`)
+    //       .trySkill($skill`Cincho: Confetti Extravaganza`)
+    //       .trySkill($skill`Gulp Latte`)
+    //       .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+    //       .trySkill($skill`Chest X-Ray`)
+    //       .trySkill($skill`Shattering Punch`)
+    //       .trySkill($skill`Gingerbread Mob Hit`)
+    //       .trySkill($skill`Bowl Sideways`)
+    //       .default(useCinch),
+    //   ),
+    //   choices: {
+    //     1094: 5,
+    //     1115: 6,
+    //     1322: 2,
+    //     1324: 5,
+    //   },
+    //   post: (): void => {
+    //     if (
+    //       itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
+    //       itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
+    //       !have($effect`Pretty Delicious`) &&
+    //       !get("instant_saveRicottaCasserole", false)
+    //     ) {
+    //       if (!have($item`baked veggie ricotta casserole`))
+    //         create($item`baked veggie ricotta casserole`, 1);
+    //       eat($item`baked veggie ricotta casserole`, 1);
+    //     }
+    //     if (
+    //       itemAmount($item`St. Sneaky Pete's Whey`) >= 1 &&
+    //       !have($effect`Awfully Wily`) &&
+    //       !get("instant_saveWileyWheyBar", false)
+    //     ) {
+    //       create($item`Pete's wiley whey bar`, 1);
+    //       eat($item`Pete's wiley whey bar`, 1);
+    //     }
+    //     haveCBBIngredients(true, true);
+    //     if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
+    //     sendAutumnaton();
+    //     sellMiscellaneousItems();
+    //     burnLibram(500);
+    //     refillLatte();
+    //   },
+    //   limit: { tries: 22 },
+    // },
     {
       name: "Open wardrobe-o-matic", // Assume we won't be leveling any more, even in aftercore, for the rest of the day
       completed: () =>
