@@ -5,6 +5,7 @@ import {
   create,
   drink,
   Effect,
+  getWorkshed,
   inebrietyLimit,
   myInebriety,
   print,
@@ -24,13 +25,20 @@ import {
   CommunityService,
   get,
   have,
+  TrainSet,
   uneffect,
 } from "libram";
-import { Quest } from "../engine/task";
-import { handleCustomPulls, logTestSetup, tryAcquiringEffect, useParkaSpit, wishFor } from "../lib";
-import { sugarItemsAboutToBreak } from "../outfit";
+import {
+  canConfigure,
+  Cycle,
+  setConfiguration,
+  Station,
+} from "libram/dist/resources/2022/TrainSet";
 import Macro from "../combat";
+import { Quest } from "../engine/task";
 import { chooseFamiliar } from "../familiars";
+import { handleCustomPulls, logTestSetup, tryAcquiringEffect, useParkaSpit, wishFor } from "../lib";
+import { baseOutfit, sugarItemsAboutToBreak } from "../outfit";
 
 const hotTestMaximizerString = "hot res";
 
@@ -38,6 +46,47 @@ export const HotResQuest: Quest = {
   name: "Hot Res",
   completed: () => CommunityService.HotRes.isDone(),
   tasks: [
+    {
+      name: "Configure Trainset",
+      completed: () =>
+        (getWorkshed() === $item`model train set` && !canConfigure()) || !TrainSet.have(),
+      do: (): void => {
+        const offset = get("trainsetPosition") % 8;
+        const newStations: TrainSet.Station[] = [];
+        const stations = [
+          Station.COAL_HOPPER, // double hot resist
+          Station.TOWER_FROZEN, // hot resist
+          Station.GAIN_MEAT, // meat
+          Station.TOWER_FIZZY, // mp regen
+          Station.BRAIN_SILO, // myst stats
+          Station.VIEWING_PLATFORM, // all stats
+          Station.WATER_BRIDGE, // +ML
+          Station.CANDY_FACTORY, // candies
+        ] as Cycle;
+        for (let i = 0; i < 8; i++) {
+          const newPos = (i + offset) % 8;
+          newStations[newPos] = stations[i];
+        }
+        setConfiguration(newStations as Cycle);
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Free Run for Hot Res",
+      after: ["Configure Trainset"],
+      completed: () => have($effect`Double Frozen`) || getWorkshed() !== $item`model train set`,
+      do: $location`The Dire Warren`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Reflex Hammer`)
+          .trySkill($skill`Snokebomb`)
+          .abort(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`Lil' Doctor™ bag`,
+      }),
+      limit: { tries: 3 },
+    },
     {
       name: "Reminisce Factory Worker (female)",
       prepare: (): void => {

@@ -1,4 +1,4 @@
-import { Quest } from "../engine/task";
+import { CombatStrategy } from "grimoire-kolmafia";
 import {
   adv1,
   autosell,
@@ -10,7 +10,6 @@ import {
   Effect,
   equip,
   faxbot,
-  getWorkshed,
   hermit,
   inebrietyLimit,
   inMuscleSign,
@@ -44,22 +43,15 @@ import {
   DaylightShavings,
   get,
   have,
-  TrainSet,
   uneffect,
   withChoice,
 } from "libram";
-import {
-  canConfigure,
-  Cycle,
-  setConfiguration,
-  Station,
-} from "libram/dist/resources/2022/TrainSet";
+import Macro, { haveFreeBanish } from "../combat";
+import { Quest } from "../engine/task";
+import { chooseFamiliar } from "../familiars";
 import { handleCustomPulls, logTestSetup, tryAcquiringEffect, wishFor } from "../lib";
 import { sugarItemsAboutToBreak } from "../outfit";
-import { CombatStrategy } from "grimoire-kolmafia";
-import Macro, { haveFreeBanish } from "../combat";
 import { forbiddenEffects } from "../resources";
-import { chooseFamiliar } from "../familiars";
 
 const boozeTestMaximizerString =
   "1 Item Drop, 2 Booze Drop, -equip broken champagne bottle, switch disembodied hand, -switch left-hand man";
@@ -91,31 +83,31 @@ export const BoozeDropQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Configure Trainset",
-      completed: () =>
-        (getWorkshed() === $item`model train set` && !canConfigure()) || !TrainSet.have(),
-      do: (): void => {
-        const offset = get("trainsetPosition") % 8;
-        const newStations: TrainSet.Station[] = [];
-        const stations = [
-          Station.COAL_HOPPER, // double hot resist
-          Station.TOWER_FROZEN, // hot resist
-          Station.GAIN_MEAT, // meat
-          Station.TOWER_FIZZY, // mp regen
-          Station.BRAIN_SILO, // myst stats
-          Station.VIEWING_PLATFORM, // all stats
-          Station.WATER_BRIDGE, // +ML
-          Station.CANDY_FACTORY, // candies
-        ] as Cycle;
-        for (let i = 0; i < 8; i++) {
-          const newPos = (i + offset) % 8;
-          newStations[newPos] = stations[i];
-        }
-        setConfiguration(newStations as Cycle);
-      },
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Configure Trainset",
+    //   completed: () =>
+    //     (getWorkshed() === $item`model train set` && !canConfigure()) || !TrainSet.have(),
+    //   do: (): void => {
+    //     const offset = get("trainsetPosition") % 8;
+    //     const newStations: TrainSet.Station[] = [];
+    //     const stations = [
+    //       Station.COAL_HOPPER, // double hot resist
+    //       Station.TOWER_FROZEN, // hot resist
+    //       Station.GAIN_MEAT, // meat
+    //       Station.TOWER_FIZZY, // mp regen
+    //       Station.BRAIN_SILO, // myst stats
+    //       Station.VIEWING_PLATFORM, // all stats
+    //       Station.WATER_BRIDGE, // +ML
+    //       Station.CANDY_FACTORY, // candies
+    //     ] as Cycle;
+    //     for (let i = 0; i < 8; i++) {
+    //       const newPos = (i + offset) % 8;
+    //       newStations[newPos] = stations[i];
+    //     }
+    //     setConfiguration(newStations as Cycle);
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Acquire Clover",
       completed: () =>

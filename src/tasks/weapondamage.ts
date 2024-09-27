@@ -6,6 +6,7 @@ import {
   equippedItem,
   haveEquipped,
   inebrietyLimit,
+  inHardcore,
   myBasestat,
   myClass,
   myHash,
@@ -19,6 +20,9 @@ import {
   restoreHp,
   restoreMp,
   retrieveItem,
+  storageAmount,
+  takeStorage,
+  toInt,
   useSkill,
   visitUrl,
 } from "kolmafia";
@@ -41,8 +45,8 @@ import {
   SongBoom,
 } from "libram";
 import Macro, { haveFreeBanish, haveMotherSlimeBanish } from "../combat";
-import { sugarItemsAboutToBreak } from "../outfit";
 import { Quest } from "../engine/task";
+import { chooseFamiliar } from "../familiars";
 import {
   handleCustomPulls,
   logTestSetup,
@@ -51,9 +55,9 @@ import {
   tryAcquiringEffect,
   wishFor,
 } from "../lib";
-import { powerlevelingLocation } from "./leveling";
+import { sugarItemsAboutToBreak } from "../outfit";
 import { forbiddenEffects } from "../resources";
-import { chooseFamiliar } from "../familiars";
+import { powerlevelingLocation } from "./leveling";
 
 const attemptKFH = have($skill`Kung Fu Hustler`) && have($familiar`Disembodied Hand`);
 const wpnTestMaximizerString = "weapon dmg, switch disembodied hand, -switch left-hand man";
@@ -203,6 +207,22 @@ export const WeaponDamageQuest: Quest = {
       do: (): void => {
         if (myThrall() !== $thrall`Elbow Macaroni`) useSkill($skill`Bind Undead Elbow Macaroni`);
         outfit(get("instant_stickKnifeOutfit"));
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Pull Corrupted Marrow",
+      completed: () =>
+        inHardcore() || // Assume user consciously chose HC and accepts the consequences that come with it
+        have($item`corrupted marrow`) ||
+        get("_roninStoragePulls")
+          .split(",")
+          .includes(toInt($item`corrupted marrow`).toString()),
+      do: (): void => {
+        if (storageAmount($item`corrupted marrow`) === 0) {
+          print("Uh oh! You do not seem to have a corrupted marrow in Hagnk's", "red");
+        }
+        takeStorage($item`corrupted marrow`, 1);
       },
       limit: { tries: 1 },
     },

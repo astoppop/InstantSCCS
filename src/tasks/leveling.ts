@@ -551,7 +551,7 @@ export const LevelingQuest: Quest = {
     //   outfit: { modifier: "myst, mp, -tie" },
     // },
     {
-      name: "Free Run",
+      name: "Free Run for Cold Res",
       completed: () =>
         !useCenser ||
         get("availableSeptEmbers") === 0 ||
@@ -732,7 +732,11 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Buy Oversized Sparkler",
-      ready: () => have($effect`Everything Looks Blue`) && get("hasRange") && myMeat() >= 1000,
+      ready: () =>
+        have($effect`On the Trolley`) &&
+        have($effect`Everything Looks Blue`) &&
+        get("hasRange") &&
+        myMeat() >= 1000,
       completed: () => have($item`oversized sparkler`),
       do: () => buy($item`oversized sparkler`, 1),
       limit: { tries: 1 },
@@ -1324,8 +1328,7 @@ export const LevelingQuest: Quest = {
       completed: () =>
         !have($item`backup camera`) ||
         !freeFightMonsters.includes(get("lastCopyableMonster") ?? $monster.none) ||
-        get("_backUpUses") >= 11 - clamp(get("instant_saveBackups", 0), 0, 11) ||
-        myBasestat(mainStat) >= targetBaseMainStat - targetBaseMainStatGap, // no longer need to back up Witchess Kings
+        get("_backUpUses") >= 11 - clamp(get("instant_saveBackups", 0), 0, 11),
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Back-Up to your Last Enemy`)

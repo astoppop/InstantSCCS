@@ -513,6 +513,7 @@ export const RunStartQuest: Quest = {
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
           .trySkill($skill`Shattering Punch`)
           .attack(),
       ),
@@ -522,6 +523,7 @@ export const RunStartQuest: Quest = {
           have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
             ? $item`Everfull Dart Holster`
             : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
         modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
       }),
       limit: { tries: 1 },
