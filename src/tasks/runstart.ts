@@ -490,8 +490,8 @@ export const RunStartQuest: Quest = {
           statStation, // main stats
           Station.VIEWING_PLATFORM, // all stats
           Station.WATER_BRIDGE, // +ML
-          Station.TOWER_FROZEN, // hot resist (useful)
           Station.TOWER_FIZZY, // mp regen
+          Station.TOWER_FROZEN, // hot resist (useful)
           // have($item`Sept-Ember Censer`) && !get("instant_saveEmbers", false)
           //   ? Station.TOWER_SEWAGE // cold res for mouthwash
           //   : Station.CANDY_FACTORY, // candies (we don't get items during free banishes)
