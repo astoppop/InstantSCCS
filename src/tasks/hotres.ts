@@ -46,27 +46,29 @@ export const HotResQuest: Quest = {
   name: "Hot Res",
   completed: () => CommunityService.HotRes.isDone(),
   tasks: [
-    // {
-    //   name: "Free Run for Hot Res",
-    //   after: ["Configure Trainset"],
-    //   completed: () => have($effect`Frozen`) || getWorkshed() !== $item`model train set`,
-    //   do: $location`The Dire Warren`,
-    //   combat: new CombatStrategy().macro(
-    //     Macro.trySkill($skill`Spring Away`)
-    //       .trySkill($skill`Reflex Hammer`)
-    //       .trySkill($skill`Snokebomb`)
-    //       .abort(),
-    //   ),
-    //   outfit: () => ({
-    //     ...baseOutfit(),
-    //     acc1: $item`Lil' Doctor™ bag`,
-    //     acc2: $item`spring shoes`,
-    //   }),
-    //   limit: { tries: 3 },
-    // },
+    {
+      name: "Free Run for Hot Res",
+      after: ["Configure Trainset"],
+      completed: () => have($effect`Frozen`) || getWorkshed() !== $item`model train set`,
+      do: $location`The Dire Warren`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Spring Away`)
+          .trySkill($skill`Reflex Hammer`)
+          .trySkill($skill`Snokebomb`)
+          .abort(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`Lil' Doctor™ bag`,
+      }),
+      limit: { tries: 1 },
+    },
     {
       name: "Configure Trainset",
-      completed: () => !(getWorkshed() === $item`model train set`) || !canConfigure(),
+      completed: () =>
+        !(getWorkshed() === $item`model train set`) ||
+        !canConfigure() ||
+        have($effect`Double Frozen`),
       do: (): void => {
         const offset = get("trainsetPosition") % 8;
         const newStations: TrainSet.Station[] = [];
@@ -102,9 +104,8 @@ export const HotResQuest: Quest = {
       outfit: () => ({
         ...baseOutfit(),
         acc1: $item`Lil' Doctor™ bag`,
-        acc2: $item`spring shoes`,
       }),
-      limit: { tries: 3 },
+      limit: { tries: 2 },
     },
     {
       name: "Reminisce Factory Worker (female)",
