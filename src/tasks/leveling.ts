@@ -601,6 +601,9 @@ export const LevelingQuest: Quest = {
           $effect`Elemental Saucesphere`, // +2 cold res
           $effect`Feeling Peaceful`, // +2 cold res from Emotion Chip
           $effect`Astral Shell`, // +1 cold res
+
+          $effect`Empathy`,
+          $effect`Leash of Linguini`,
         ];
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
       },
@@ -614,16 +617,17 @@ export const LevelingQuest: Quest = {
           tryAcquiringEffect($effect`Rainbow Vaccine`);
 
         // Grab Bembershoots
-        const bembershootQty = get("instant_skipBembershootForJacket", false) ? 2 : 3;
+        // const bembershootQty = get("instant_skipBembershootForJacket", false) ? 2 : 3;
+        const bembershootQty = 1;
         visitUrl(
           `shop.php?whichshop=september&action=buyitem&quantity=${bembershootQty}&whichrow=1516&pwd`,
         );
 
         // Grab Mouthwashes
-        visitUrl("shop.php?whichshop=september&action=buyitem&quantity=2&whichrow=1512&pwd");
+        visitUrl("shop.php?whichshop=september&action=buyitem&quantity=3&whichrow=1512&pwd");
 
         cliExecute("maximize cold res");
-        use($item`Mmm-brr! brand mouthwash`, 2);
+        use($item`Mmm-brr! brand mouthwash`, 3);
       },
       limit: { tries: 1 },
       outfit: {

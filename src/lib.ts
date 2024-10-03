@@ -75,8 +75,8 @@ import {
   Witchess,
 } from "libram";
 import { printModtrace } from "libram/dist/modifier";
-import { excludedFamiliars, forbiddenEffects } from "./resources";
 import { chooseRift } from "libram/dist/resources/2023/ClosedCircuitPayphone";
+import { excludedFamiliars, forbiddenEffects } from "./resources";
 
 export const startingClan = getClanName();
 export const motherSlimeClan = Clan.getWhitelisted().find(
@@ -336,13 +336,19 @@ export function getGarden(): Item {
   return gardens.find((it) => it.name in getCampground()) || $item.none;
 }
 
-export function wishFor(ef: Effect, useGenie = true): void {
+export function wishFor(ef: Effect, useGenie = true, preferMonkey = false): void {
   // Tries to wish for an effect, but does not guarantee it
   if (have(ef)) return;
   if (forbiddenEffects.includes(ef)) return;
   // Genie and Monkey Paw both support wishing for effects
   // However, we can always sell Genie Wishes, so we prioritize using the paw
   // TODO: Use mafia's pref to check if we can still use the paw for wishes
+
+  // I need extra duration to carry over weapon damage buffs to spell damage test
+  if (!preferMonkey && have($item`pocket wish`) && !get("instant_saveGenie", false) && useGenie) {
+    cliExecute(`genie effect ${ef.name}`);
+    return;
+  }
 
   if (
     have($item`cursed monkey's paw`) &&
@@ -354,6 +360,7 @@ export function wishFor(ef: Effect, useGenie = true): void {
 
   if (have($item`pocket wish`) && !get("instant_saveGenie", false) && useGenie) {
     cliExecute(`genie effect ${ef.name}`);
+    return;
   }
 }
 

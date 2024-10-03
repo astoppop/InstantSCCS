@@ -278,7 +278,7 @@ export const WeaponDamageQuest: Quest = {
         // If it saves us >= 6 turns, try using a wish
         if (CommunityService.WeaponDamage.actualCost() >= 7) wishFor($effect`Outer Wolf™`);
         $effects`Spit Upon, Pyramid Power`.forEach((ef) => {
-          if (CommunityService.WeaponDamage.actualCost() >= 5) wishFor(ef); // The effects each save 2 turns on spelltest as well
+          if (CommunityService.WeaponDamage.actualCost() >= 5) wishFor(ef, true, true); // The effects each save 2 turns on spelltest as well
         });
 
         if (

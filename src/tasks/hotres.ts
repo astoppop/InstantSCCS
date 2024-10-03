@@ -49,7 +49,10 @@ export const HotResQuest: Quest = {
     {
       name: "Free Run for Hot Res",
       after: ["Configure Trainset"],
-      completed: () => have($effect`Frozen`) || getWorkshed() !== $item`model train set`,
+      completed: () =>
+        have($effect`Frozen`) ||
+        have($effect`Double Frozen`) ||
+        getWorkshed() !== $item`model train set`,
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Spring Away`)
@@ -255,7 +258,6 @@ export const HotResQuest: Quest = {
           $effect`Blood Bond`,
           $effect`Empathy`,
           $effect`Leash of Linguini`,
-          $effect`Robot Friends`,
         ];
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
         handleCustomPulls("instant_hotTestPulls", hotTestMaximizerString);

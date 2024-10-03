@@ -30,15 +30,15 @@ import {
   have,
 } from "libram";
 import Macro from "../combat";
-import { avoidDaylightShavingsHelm, sugarItemsAboutToBreak } from "../outfit";
 import { Quest } from "../engine/task";
+import { chooseFamiliar } from "../familiars";
 import {
   chooseHeaviestEquippedFamiliar,
   handleCustomPulls,
   logTestSetup,
   tryAcquiringEffect,
 } from "../lib";
-import { chooseFamiliar } from "../familiars";
+import { avoidDaylightShavingsHelm, sugarItemsAboutToBreak } from "../outfit";
 
 const famTestMaximizerString = "familiar weight";
 
@@ -103,7 +103,7 @@ export const FamiliarWeightQuest: Quest = {
           $effect`Boxing Day Glow`,
           $effect`Do I Know You From Somewhere?`,
           $effect`Empathy`,
-          $effect`Fidoxene`,
+          // $effect`Fidoxene`,
           $effect`Heart of Green`,
           $effect`Kindly Resolve`,
           $effect`Leash of Linguini`,
