@@ -48,7 +48,6 @@ export const HotResQuest: Quest = {
   tasks: [
     {
       name: "Free Run for Hot Res",
-      after: ["Configure Trainset"],
       completed: () =>
         have($effect`Frozen`) ||
         have($effect`Double Frozen`) ||
@@ -94,7 +93,7 @@ export const HotResQuest: Quest = {
       limit: { tries: 1 },
     },
     {
-      name: "Free Run for Hot Res",
+      name: "Free Run for Hot Res Continued",
       after: ["Configure Trainset"],
       completed: () => have($effect`Double Frozen`) || getWorkshed() !== $item`model train set`,
       do: $location`The Dire Warren`,
@@ -251,7 +250,7 @@ export const HotResQuest: Quest = {
           $effect`Elemental Saucesphere`,
           $effect`Feeling Peaceful`,
           $effect`Hot-Headed`,
-          $effect`Rainbowolin`,
+          // $effect`Rainbowolin`,
           $effect`Rainbow Vaccine`,
 
           // Famwt Buffs

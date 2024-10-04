@@ -570,6 +570,12 @@ export const LevelingQuest: Quest = {
       limit: { tries: 4 },
     },
     {
+      name: "Eat Deep Dish",
+      completed: () => get("deepDishOfLegendEaten") || !have($item`Deep Dish of Legend`),
+      do: () => eat($item`Deep Dish of Legend`, 1),
+      limit: { tries: 1 },
+    },
+    {
       name: "Sept-ember Mouthwash",
       ready: () =>
         getWorkshed() !== $item`model train set` || have($effect`Double Hot Soupy Garbage`),
@@ -594,7 +600,7 @@ export const LevelingQuest: Quest = {
         restoreMp(50);
         const usefulEffects: Effect[] = [
           $effect`Frosty Hand`, // +5 cold res from Cargo Shorts
-          $effect`Rainbowolin`, // +4 cold res from Pillkeeper
+          // $effect`Rainbowolin`, // +4 cold res from Pillkeeper
           $effect`Cold as Nice`, // +3 cold res from Beach Comb
           $effect`Egged On`, // +3 cold res from Rockin' Robin's drop
           $effect`Scarysauce`, // +2 cold res
@@ -655,12 +661,6 @@ export const LevelingQuest: Quest = {
       name: "Eat Calzone",
       completed: () => get("calzoneOfLegendEaten") || !have($item`Calzone of Legend`),
       do: () => eat($item`Calzone of Legend`, 1),
-      limit: { tries: 1 },
-    },
-    {
-      name: "Eat Deep Dish",
-      completed: () => get("deepDishOfLegendEaten") || !have($item`Deep Dish of Legend`),
-      do: () => eat($item`Deep Dish of Legend`, 1),
       limit: { tries: 1 },
     },
     {
