@@ -479,6 +479,7 @@ export const RunStartQuest: Quest = {
         !have($item`model train set`) ||
         (getWorkshed() === $item`model train set` && !canConfigure()),
       do: (): void => {
+        cliExecute("cast Rest Upside Down");
         const statStation: Station = {
           Muscle: Station.BRAWN_SILO,
           Mysticality: Station.BRAIN_SILO,

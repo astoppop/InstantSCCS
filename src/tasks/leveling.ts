@@ -13,9 +13,7 @@ import {
   equip,
   faxbot,
   getWorkshed,
-  haveEffect,
   haveEquipped,
-  holiday,
   inebrietyLimit,
   inHardcore,
   Item,
@@ -84,7 +82,7 @@ import {
   withChoice,
 } from "libram";
 import { mapMonster } from "libram/dist/resources/2020/Cartography";
-import { chooseQuest, rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
+import { rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
 import Macro, { haveFreeBanish } from "../combat";
 import { Quest } from "../engine/task";
 import {
@@ -118,7 +116,7 @@ import {
   wishFor,
   xpWishEffect,
 } from "../lib";
-import { baseOutfit, docBag, garbageShirt, unbreakableUmbrella } from "../outfit";
+import { baseOutfit, garbageShirt, unbreakableUmbrella } from "../outfit";
 import { forbiddenEffects } from "../resources";
 
 const useCinch = !get("instant_saveCinch", false);
@@ -597,6 +595,7 @@ export const LevelingQuest: Quest = {
           wishFor($effect`Fever From the Flavor`, false);
         }
 
+        cliExecute("cast Rest Upside Down");
         restoreMp(50);
         const usefulEffects: Effect[] = [
           $effect`Frosty Hand`, // +5 cold res from Cargo Shorts
@@ -839,117 +838,123 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 10 },
     },
+    // {
+    //   name: "Map Amateur Ninja",
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     if (!have($effect`Everything Looks Blue`) && !have($item`blue rocket`)) {
+    //       if (myMeat() < 250) throw new Error("Insufficient Meat to purchase blue rocket!");
+    //       buy($item`blue rocket`, 1);
+    //     }
+    //     unbreakableUmbrella();
+    //     docBag();
+    //     restoreMp(50);
+    //     if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+    //       if (myMeat() >= 250) buy($item`red rocket`, 1);
+    //     }
+    //   },
+    //   completed: () =>
+    //     !have($skill`Map the Monsters`) ||
+    //     get("_monstersMapped") >= 3 ||
+    //     have($item`li'l ninja costume`) ||
+    //     !have($familiar`Trick-or-Treating Tot`) ||
+    //     get("instant_skipMappingNinja", false),
+    //   do: () => mapMonster($location`The Haiku Dungeon`, $monster`amateur ninja`),
+    //   combat: new CombatStrategy().macro(
+    //     Macro.if_(
+    //       $monster`amateur ninja`,
+    //       Macro.tryItem($item`blue rocket`)
+    //         .tryItem($item`red rocket`)
+    //         .trySkill($skill`Chest X-Ray`)
+    //         .trySkill($skill`Gingerbread Mob Hit`)
+    //         .trySkill($skill`Shattering Punch`)
+    //         .default(),
+    //     ).abort(),
+    //   ),
+    //   outfit: () => ({
+    //     ...baseOutfit(),
+    //     familiar: $familiar`Trick-or-Treating Tot`,
+    //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+    //   }),
+    //   post: () => sellMiscellaneousItems(),
+    //   limit: { tries: 1 },
+    // },
+    // {
+    //   name: "Restore MP with Glowing Blue",
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     if (!have($effect`Everything Looks Blue`) && !have($item`blue rocket`)) {
+    //       if (myMeat() < 250) throw new Error("Insufficient Meat to purchase blue rocket!");
+    //       buy($item`blue rocket`, 1);
+    //     }
+    //     unbreakableUmbrella();
+    //     restoreMp(50);
+    //     if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+    //       if (myMeat() >= 250) buy($item`red rocket`, 1);
+    //     }
+    //   },
+    //   completed: () => have($effect`Everything Looks Blue`),
+    //   // || haveCBBIngredients(false),
+    //   do: $location`The Dire Warren`,
+    //   // do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
+    //   combat: new CombatStrategy().macro(
+    //     Macro.trySkill($skill`Curse of Weaksauce`)
+    //       .tryItem($item`blue rocket`)
+    //       .tryItem($item`red rocket`)
+    //       .default(),
+    //   ),
+    //   outfit: () => ({
+    //     ...baseOutfit(false),
+    //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+    //   }),
+    //   post: () => sellMiscellaneousItems(),
+    //   choices: {
+    //     1094: 5,
+    //     1115: 6,
+    //     1322: 2,
+    //     1324: 5,
+    //   },
+    //   limit: { tries: 2 },
+    // },
+    // {
+    //   name: "Restore MP with Glowing Blue (continued)",
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     unbreakableUmbrella();
+    //     restoreMp(50);
+    //   },
+    //   // We need to spend at least 1adv to get the mp regen from Glowing Blue
+    //   // This is only an issue if our powerleveling zone is the NEP, since the previous fight would be free
+    //   completed: () =>
+    //     powerlevelingLocation() !== $location`The Neverending Party` ||
+    //     haveEffect($effect`Glowing Blue`) !== 10 ||
+    //     myMp() >= 500,
+    //   // || haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
+    //   do: $location`The Dire Warren`,
+    //   outfit: () => ({
+    //     ...baseOutfit(false),
+    //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+    //   }),
+    //   combat: new CombatStrategy().macro(Macro.attack().repeat()),
+    //   post: (): void => {
+    //     sendAutumnaton();
+    //     sellMiscellaneousItems();
+    //   },
+    //   limit: { tries: 1 },
+    // },
+    // {
+    //   name: "Get Rufus Quest",
+    //   completed: () => get("_shadowAffinityToday") || !have($item`closed-circuit pay phone`),
+    //   do: (): void => {
+    //     chooseQuest(() => 2);
+    //     if (holiday().includes("April Fool's Day")) visitUrl("questlog.php?which=7");
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
-      name: "Map Amateur Ninja",
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        if (!have($effect`Everything Looks Blue`) && !have($item`blue rocket`)) {
-          if (myMeat() < 250) throw new Error("Insufficient Meat to purchase blue rocket!");
-          buy($item`blue rocket`, 1);
-        }
-        unbreakableUmbrella();
-        docBag();
-        restoreMp(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
-      },
-      completed: () =>
-        !have($skill`Map the Monsters`) ||
-        get("_monstersMapped") >= 3 ||
-        have($item`li'l ninja costume`) ||
-        !have($familiar`Trick-or-Treating Tot`) ||
-        get("instant_skipMappingNinja", false),
-      do: () => mapMonster($location`The Haiku Dungeon`, $monster`amateur ninja`),
-      combat: new CombatStrategy().macro(
-        Macro.if_(
-          $monster`amateur ninja`,
-          Macro.tryItem($item`blue rocket`)
-            .tryItem($item`red rocket`)
-            .trySkill($skill`Chest X-Ray`)
-            .trySkill($skill`Gingerbread Mob Hit`)
-            .trySkill($skill`Shattering Punch`)
-            .default(),
-        ).abort(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(),
-        familiar: $familiar`Trick-or-Treating Tot`,
-        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
-      }),
-      post: () => sellMiscellaneousItems(),
-      limit: { tries: 1 },
-    },
-    {
-      name: "Restore MP with Glowing Blue",
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        if (!have($effect`Everything Looks Blue`) && !have($item`blue rocket`)) {
-          if (myMeat() < 250) throw new Error("Insufficient Meat to purchase blue rocket!");
-          buy($item`blue rocket`, 1);
-        }
-        unbreakableUmbrella();
-        restoreMp(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
-      },
-      completed: () => have($effect`Everything Looks Blue`),
-      // || haveCBBIngredients(false),
-      do: $location`The Dire Warren`,
-      // do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Curse of Weaksauce`)
-          .tryItem($item`blue rocket`)
-          .tryItem($item`red rocket`)
-          .default(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(false),
-        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
-      }),
-      post: () => sellMiscellaneousItems(),
-      choices: {
-        1094: 5,
-        1115: 6,
-        1322: 2,
-        1324: 5,
-      },
-      limit: { tries: 2 },
-    },
-    {
-      name: "Restore MP with Glowing Blue (continued)",
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        unbreakableUmbrella();
-        restoreMp(50);
-      },
-      // We need to spend at least 1adv to get the mp regen from Glowing Blue
-      // This is only an issue if our powerleveling zone is the NEP, since the previous fight would be free
-      completed: () =>
-        powerlevelingLocation() !== $location`The Neverending Party` ||
-        haveEffect($effect`Glowing Blue`) !== 10 ||
-        myMp() >= 500,
-      // || haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
-      do: $location`The Dire Warren`,
-      outfit: () => ({
-        ...baseOutfit(false),
-        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
-      }),
-      combat: new CombatStrategy().macro(Macro.attack().repeat()),
-      post: (): void => {
-        sendAutumnaton();
-        sellMiscellaneousItems();
-      },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Get Rufus Quest",
-      completed: () => get("_shadowAffinityToday") || !have($item`closed-circuit pay phone`),
-      do: (): void => {
-        chooseQuest(() => 2);
-        if (holiday().includes("April Fool's Day")) visitUrl("questlog.php?which=7");
-      },
+      name: "Restore MP with Rest Upside Down",
+      completed: () => myMp() >= 500,
+      do: () => cliExecute("cast Rest Upside Down"),
       limit: { tries: 1 },
     },
     {
