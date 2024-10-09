@@ -663,6 +663,12 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Eat Pizza",
+      completed: () => get("pizzaOfLegendEaten") || !have($item`Pizza of Legend`),
+      do: () => eat($item`Pizza of Legend`, 1),
+      limit: { tries: 1 },
+    },
+    {
       name: "Cast Prevent Scurvy",
       ready: () => myMp() >= 200,
       completed: () => !have($skill`Prevent Scurvy and Sobriety`) || get("_preventScurvy"),
@@ -744,13 +750,7 @@ export const LevelingQuest: Quest = {
       do: () => buy($item`oversized sparkler`, 1),
       limit: { tries: 1 },
     },
-    {
-      name: "Eat Pizza",
-      ready: () => have($effect`Ready to Eat`), // only eat this after we red rocket
-      completed: () => get("pizzaOfLegendEaten") || !have($item`Pizza of Legend`),
-      do: () => eat($item`Pizza of Legend`, 1),
-      limit: { tries: 1 },
-    },
+
     {
       name: "Drink Astral Pilsners",
       ready: () => myLevel() >= 11 && myMp() >= 200,
@@ -1393,10 +1393,6 @@ export const LevelingQuest: Quest = {
         unbreakableUmbrella();
         garbageShirt();
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
-        restoreMp(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
       },
       do: (): void => {
         if (
