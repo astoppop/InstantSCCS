@@ -728,12 +728,12 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Consult Fortune Teller",
-      completed: () => get("_clanFortuneBuffUsed") || get("instant_saveFortuneTeller", false),
-      do: () => cliExecute(`fortune buff ${mainStatMaximizerStr}`),
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Consult Fortune Teller",
+    //   completed: () => get("_clanFortuneBuffUsed") || get("instant_saveFortuneTeller", false),
+    //   do: () => cliExecute(`fortune buff ${mainStatMaximizerStr}`),
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Use General Store Statboost",
       completed: () => have(generalStoreXpEffect),
