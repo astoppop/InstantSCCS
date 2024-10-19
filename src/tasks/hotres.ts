@@ -37,7 +37,14 @@ import {
 import Macro from "../combat";
 import { Quest } from "../engine/task";
 import { chooseFamiliar } from "../familiars";
-import { handleCustomPulls, logTestSetup, tryAcquiringEffect, useParkaSpit, wishFor } from "../lib";
+import {
+  handleCustomPulls,
+  logTestSetup,
+  mainStatStr,
+  tryAcquiringEffect,
+  useParkaSpit,
+  wishFor,
+} from "../lib";
 import { baseOutfit, sugarItemsAboutToBreak } from "../outfit";
 
 const hotTestMaximizerString = "hot res";
@@ -74,12 +81,17 @@ export const HotResQuest: Quest = {
       do: (): void => {
         const offset = get("trainsetPosition") % 8;
         const newStations: TrainSet.Station[] = [];
+        const statStation: Station = {
+          Muscle: Station.BRAWN_SILO,
+          Mysticality: Station.BRAIN_SILO,
+          Moxie: Station.GROIN_SILO,
+        }[mainStatStr];
         const stations = [
           Station.COAL_HOPPER, // double hot resist
           Station.TOWER_FROZEN, // hot resist
           Station.GAIN_MEAT, // meat
           Station.TOWER_FIZZY, // mp regen
-          Station.BRAIN_SILO, // myst stats
+          statStation, // main stats
           Station.VIEWING_PLATFORM, // all stats
           Station.WATER_BRIDGE, // +ML
           Station.CANDY_FACTORY, // candies
@@ -109,6 +121,31 @@ export const HotResQuest: Quest = {
       }),
       limit: { tries: 2 },
     },
+    // {
+    //   name: "Map for BOFA Hot Res",
+    //   completed: () =>
+    //     myClass() != $class`Seal Clubber` ||
+    //     !have($skill`Map the Monsters`) ||
+    //     get("_monstersMapped") >= 3 ||
+    //     have($effect`Antiantifrozen`),
+    //   do: () => mapMonster($location`Madness Bakery`, $monster`dinner troll`),
+    //   combat: new CombatStrategy().macro(
+    //     Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+    //       .trySkill($skill`Chest X-Ray`)
+    //       .trySkill($skill`Shattering Punch`)
+    //       .attack(),
+    //   ),
+    //   outfit: () => ({
+    //     ...baseOutfit(false),
+    //     acc1:
+    //       have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+    //         ? $item`Everfull Dart Holster`
+    //         : undefined,
+    //     acc2: $item`Lil' Doctor™ bag`,
+    //     modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+    //   }),
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Reminisce Factory Worker (female)",
       prepare: (): void => {

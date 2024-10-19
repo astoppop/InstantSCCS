@@ -121,10 +121,16 @@ import { forbiddenEffects } from "../resources";
 
 const useCinch = !get("instant_saveCinch", false);
 const baseBoozes = $items`bottle of rum, boxed wine, bottle of gin, bottle of vodka, bottle of tequila, bottle of whiskey`;
-const freeFightMonsters: Monster[] = $monsters`Witchess Bishop, Witchess King, Witchess Witch, sausage goblin, Eldritch Tentacle, Black Crayon Beetle`;
 const craftedCBBFoods: Item[] = $items`honey bun of Boris, roasted vegetable of Jarlsberg, Pete's rich ricotta, plain calzone`;
 const craftedCBBEffects: Effect[] = craftedCBBFoods.map((it) => effectModifier(it, "effect"));
 let triedCraftingCBBFoods = false;
+
+const faxLevelingMonster = $monster`Black Crayon Penguin`;
+// myClass() === $class`Seal Clubber`
+//   ? $monster`Black Crayon Frat Orc`
+//   : $monster`Black Crayon Beetle`;
+// add here as well
+const freeFightMonsters: Monster[] = $monsters`Witchess Bishop, Witchess King, Witchess Witch, sausage goblin, Eldritch Tentacle, Black Crayon Beetle, Black Crayon Constellation, Black Crayon Frat Orc, Black Crayon Penguin`;
 
 const LOVEquip =
   mainStatStr === $stat`Muscle`
@@ -568,6 +574,32 @@ export const LevelingQuest: Quest = {
       limit: { tries: 4 },
     },
     {
+      name: "Map for BOFA Cold Res",
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($skill`Map the Monsters`) ||
+        get("_monstersMapped") >= 3 ||
+        have($effect`Imagining Guts`),
+      do: () =>
+        mapMonster($location`The Outskirts of Cobb's Knob`, $monster`sleeping Knob Goblin Guard`),
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
+      limit: { tries: 1 },
+    },
+    {
       name: "Eat Deep Dish",
       completed: () => get("deepDishOfLegendEaten") || !have($item`Deep Dish of Legend`),
       do: () => eat($item`Deep Dish of Legend`, 1),
@@ -576,7 +608,8 @@ export const LevelingQuest: Quest = {
     {
       name: "Sept-ember Mouthwash",
       ready: () =>
-        getWorkshed() !== $item`model train set` || have($effect`Double Hot Soupy Garbage`),
+        (getWorkshed() !== $item`model train set` || have($effect`Double Hot Soupy Garbage`)) &&
+        (myClass() != $class`Seal Clubber` || have($effect`Imagining Guts`)),
       completed: () => !useCenser || get("availableSeptEmbers") === 0,
       prepare: (): void => {
         // Ready to Survive gives +1 cold res
@@ -642,6 +675,50 @@ export const LevelingQuest: Quest = {
       post: (): void => {
         if (have($effect`Scarysauce`)) cliExecute("shrug scarysauce");
       },
+    },
+    {
+      name: "Get BOFA Pocket Wishes",
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_saberForceUses") >= 1 ||
+        !have($skill`Map the Monsters`) ||
+        get("_monstersMapped") >= 3 ||
+        get("_bookOfFactsWishes") > 0,
+      do: () => mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`),
+      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
+      outfit: () => ({
+        ...baseOutfit(false),
+        weapon: $item`Fourth of May Cosplay Saber`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Get BOFA Pocket Wishes (continued)",
+      after: ["Get BOFA Pocket Wishes"],
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_bookOfFactsWishes") >= 3,
+      do: () => $location`The Sleazy Back Alley`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 4 },
     },
     {
       name: "Alice Army",
@@ -1349,9 +1426,7 @@ export const LevelingQuest: Quest = {
         get("_backUpUses") >= 11 - clamp(get("instant_saveBackups", 0), 0, 11),
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Back-Up to your Last Enemy`)
-          .trySkill($skill`Bowl Sideways`)
-          .default(useCinch),
+        Macro.trySkill($skill`Back-Up to your Last Enemy`).default(useCinch),
       ),
       outfit: () => ({
         ...baseOutfit(),
@@ -1386,7 +1461,7 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
     },
     {
-      name: "Fax Black Crayon Beetle",
+      name: "Fax Leveling Monster",
       completed: () => get("_photocopyUsed"),
       prepare: (): void => {
         restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
@@ -1395,10 +1470,7 @@ export const LevelingQuest: Quest = {
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
       },
       do: (): void => {
-        if (
-          have($item`photocopied monster`) &&
-          get("photocopyMonster") !== $monster`Black Crayon Beetle`
-        ) {
+        if (have($item`photocopied monster`) && get("photocopyMonster") !== faxLevelingMonster) {
           cliExecute("fax send");
         }
 
@@ -1414,12 +1486,12 @@ export const LevelingQuest: Quest = {
         // }
 
         if (!have($item`photocopied monster`)) {
-          cliExecute("faxbot Black Crayon Beetle");
+          cliExecute(`faxbot ${faxLevelingMonster}`);
         }
 
         if (
-          (have($item`photocopied monster`) || faxbot($monster`Black Crayon Beetle`)) &&
-          get("photocopyMonster") === $monster`Black Crayon Beetle`
+          (have($item`photocopied monster`) || faxbot(faxLevelingMonster)) &&
+          get("photocopyMonster") === faxLevelingMonster
         ) {
           use($item`photocopied monster`);
         }
@@ -1430,7 +1502,7 @@ export const LevelingQuest: Quest = {
           .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
           .default(useCinch),
       ),
-      limit: { tries: 5 },
+      limit: { tries: 1 },
     },
     {
       name: "Kramco",
