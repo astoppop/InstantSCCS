@@ -11,7 +11,6 @@ import {
   Effect,
   effectModifier,
   equip,
-  faxbot,
   getWorkshed,
   haveEquipped,
   inebrietyLimit,
@@ -1460,50 +1459,103 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
+
     {
-      name: "Fax Leveling Monster",
-      completed: () => get("_photocopyUsed"),
+      name: "Mimic Leveling Monster",
       prepare: (): void => {
         restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        unbreakableUmbrella();
+        // unbreakableUmbrella();
         garbageShirt();
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
+
+        if (have($item`Roman Candelabra`) && !have($effect`Everything Looks Purple`)) {
+          equip($slot`offhand`, $item`Roman Candelabra`);
+        } else {
+          unbreakableUmbrella();
+        }
+        restoreMp(50);
       },
+      completed: () =>
+        get("instant_saveMimicEggs", false) ||
+        get("_mimicEggsObtained") > 0 ||
+        !have($familiar`Chest Mimic`) ||
+        (!(have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) &&
+          !(have($item`Apriling band piccolo`) && get("_aprilBandPiccoloUses") < 3)),
       do: (): void => {
-        if (have($item`photocopied monster`) && get("photocopyMonster") !== faxLevelingMonster) {
-          cliExecute("fax send");
+        const currentFamiliar = myFamiliar();
+        if (have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) {
+          useFamiliar($familiar`Shorter-Order Cook`);
+          equip($slot`familiar`, $item`blue plate`);
         }
-
-        // If we're whitelisted to the CSLooping clan, use that to grab the ungulith instead
-        // if (Clan.getWhitelisted().find((c) => c.name.toLowerCase() === "csloopers unite")) {
-        //   Clan.with("CSLoopers Unite", () => cliExecute("fax receive"));
-        // } else {
-        //   if (!visitUrl("messages.php?box=Outbox").includes("#3626664")) {
-        //     print("Requesting whitelist to CS clan...", "blue");
-        //     cliExecute("csend to 3626664 || Requesting access to CS clan");
-        //   }
-        //   cliExecute("chat");
-        // }
-
-        if (!have($item`photocopied monster`)) {
-          cliExecute(`faxbot ${faxLevelingMonster}`);
+        useFamiliar($familiar`Chest Mimic`);
+        if (have($item`Apriling band piccolo`) && get("_aprilBandPiccoloUses") < 3) {
+          retrieveItem($item`Apriling band piccolo`); // We can't play the piccolo if it's equipped on a non-current familiar
+          Array(3 - get("_aprilBandPiccoloUses"))
+            .fill(0)
+            .forEach(() => AprilingBandHelmet.play($item`Apriling band piccolo`));
         }
-
-        if (
-          (have($item`photocopied monster`) || faxbot(faxLevelingMonster)) &&
-          get("photocopyMonster") === faxLevelingMonster
-        ) {
-          use($item`photocopied monster`);
-        }
+        ChestMimic.receive(faxLevelingMonster);
+        useFamiliar(currentFamiliar);
+        ChestMimic.differentiate(faxLevelingMonster);
       },
-      outfit: baseOutfit,
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Recall Facts: Monster Habitats`)
           .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+          .trySkill($skill`Blow the Purple Candle!`)
           .default(useCinch),
       ),
+      outfit: baseOutfit,
+      post: (): void => {
+        visitUrl("main.php");
+        sendAutumnaton();
+        sellMiscellaneousItems();
+      },
       limit: { tries: 1 },
     },
+    // {
+    //   name: "Fax Leveling Monster",
+    //   completed: () => get("_photocopyUsed"),
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     unbreakableUmbrella();
+    //     garbageShirt();
+    //     usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
+    //   },
+    //   do: (): void => {
+    //     if (have($item`photocopied monster`) && get("photocopyMonster") !== faxLevelingMonster) {
+    //       cliExecute("fax send");
+    //     }
+
+    //     // If we're whitelisted to the CSLooping clan, use that to grab the ungulith instead
+    //     // if (Clan.getWhitelisted().find((c) => c.name.toLowerCase() === "csloopers unite")) {
+    //     //   Clan.with("CSLoopers Unite", () => cliExecute("fax receive"));
+    //     // } else {
+    //     //   if (!visitUrl("messages.php?box=Outbox").includes("#3626664")) {
+    //     //     print("Requesting whitelist to CS clan...", "blue");
+    //     //     cliExecute("csend to 3626664 || Requesting access to CS clan");
+    //     //   }
+    //     //   cliExecute("chat");
+    //     // }
+
+    //     if (!have($item`photocopied monster`)) {
+    //       cliExecute(`faxbot ${faxLevelingMonster}`);
+    //     }
+
+    //     if (
+    //       (have($item`photocopied monster`) || faxbot(faxLevelingMonster)) &&
+    //       get("photocopyMonster") === faxLevelingMonster
+    //     ) {
+    //       use($item`photocopied monster`);
+    //     }
+    //   },
+    //   outfit: baseOutfit,
+    //   combat: new CombatStrategy().macro(
+    //     Macro.trySkill($skill`Recall Facts: Monster Habitats`)
+    //       .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+    //       .default(useCinch),
+    //   ),
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Kramco",
       prepare: (): void => {
@@ -1804,61 +1856,6 @@ export const LevelingQuest: Quest = {
         sellMiscellaneousItems();
       },
       limit: { tries: 3 },
-    },
-    {
-      name: "Mimic Sausage Goblins",
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        if (have($item`Roman Candelabra`) && !have($effect`Everything Looks Purple`)) {
-          equip($slot`offhand`, $item`Roman Candelabra`);
-        } else {
-          unbreakableUmbrella();
-        }
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
-        restoreMp(50);
-      },
-      completed: () =>
-        get("instant_saveMimicEggs", false) ||
-        get("_mimicEggsObtained") > 0 ||
-        !have($familiar`Chest Mimic`) ||
-        (!(have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) &&
-          !(have($item`Apriling band piccolo`) && get("_aprilBandPiccoloUses") < 3)),
-      do: (): void => {
-        const currentFamiliar = myFamiliar();
-        if (have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) {
-          useFamiliar($familiar`Shorter-Order Cook`);
-          equip($slot`familiar`, $item`blue plate`);
-        }
-        useFamiliar($familiar`Chest Mimic`);
-        if (have($item`Apriling band piccolo`) && get("_aprilBandPiccoloUses") < 3) {
-          retrieveItem($item`Apriling band piccolo`); // We can't play the piccolo if it's equipped on a non-current familiar
-          Array(3 - get("_aprilBandPiccoloUses"))
-            .fill(0)
-            .forEach(() => AprilingBandHelmet.play($item`Apriling band piccolo`));
-        }
-        ChestMimic.receive($monster`sausage goblin`);
-        useFamiliar(currentFamiliar);
-        ChestMimic.differentiate($monster`sausage goblin`);
-      },
-      combat: new CombatStrategy().macro(() =>
-        Macro.externalIf(
-          get("_monsterHabitatsFightsLeft") <= 1 &&
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-            have($skill`Recall Facts: Monster Habitats`) &&
-            (haveFreeBanish() ||
-              Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
-          Macro.trySkill($skill`Recall Facts: Monster Habitats`),
-        )
-          .trySkill($skill`Blow the Purple Candle!`)
-          .default(useCinch),
-      ),
-      outfit: baseOutfit,
-      post: (): void => {
-        visitUrl("main.php");
-        sendAutumnaton();
-        sellMiscellaneousItems();
-      },
-      limit: { tries: 1 },
     },
     {
       name: "Witchess King",

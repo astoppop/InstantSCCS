@@ -210,19 +210,35 @@ export const WeaponDamageQuest: Quest = {
       },
       limit: { tries: 1 },
     },
+    // {
+    //   name: "Pull Corrupted Marrow",
+    //   completed: () =>
+    //     inHardcore() || // Assume user consciously chose HC and accepts the consequences that come with it
+    //     have($item`corrupted marrow`) ||
+    //     get("_roninStoragePulls")
+    //       .split(",")
+    //       .includes(toInt($item`corrupted marrow`).toString()),
+    //   do: (): void => {
+    //     if (storageAmount($item`corrupted marrow`) === 0) {
+    //       print("Uh oh! You do not seem to have a corrupted marrow in Hagnk's", "red");
+    //     }
+    //     takeStorage($item`corrupted marrow`, 1);
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
-      name: "Pull Corrupted Marrow",
+      name: "Pull Stick Knife",
       completed: () =>
         inHardcore() || // Assume user consciously chose HC and accepts the consequences that come with it
-        have($item`corrupted marrow`) ||
+        have($item`Stick-Knife of Loathing`) ||
         get("_roninStoragePulls")
           .split(",")
-          .includes(toInt($item`corrupted marrow`).toString()),
+          .includes(toInt($item`Stick-Knife of Loathing`).toString()),
       do: (): void => {
-        if (storageAmount($item`corrupted marrow`) === 0) {
-          print("Uh oh! You do not seem to have a corrupted marrow in Hagnk's", "red");
+        if (storageAmount($item`Stick-Knife of Loathing`) === 0) {
+          print("Uh oh! You do not seem to have a Stick-Knife of Loathing in Hagnk's", "red");
         }
-        takeStorage($item`corrupted marrow`, 1);
+        takeStorage($item`Stick-Knife of Loathing`, 1);
       },
       limit: { tries: 1 },
     },

@@ -344,12 +344,6 @@ export function wishFor(ef: Effect, useGenie = true, preferMonkey = false): void
   // However, we can always sell Genie Wishes, so we prioritize using the paw
   // TODO: Use mafia's pref to check if we can still use the paw for wishes
 
-  // I need extra duration to carry over weapon damage buffs to spell damage test
-  if (!preferMonkey && have($item`pocket wish`) && !get("instant_saveGenie", false) && useGenie) {
-    cliExecute(`genie effect ${ef.name}`);
-    return;
-  }
-
   if (
     have($item`cursed monkey's paw`) &&
     !get("instant_saveMonkeysPaw", false) &&
