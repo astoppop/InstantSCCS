@@ -605,6 +605,15 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Restore mp (Bat Wings) (leveing)",
+      completed: () =>
+        !have($item`bat wings`) ||
+        get("_batWingsRestUsed") >= 11 ||
+        myMp() >= Math.min(200, myMaxmp()),
+      do: () => useSkill($skill`Rest upside down`),
+      limit: { tries: 11 },
+    },
+    {
       name: "Sept-ember Mouthwash",
       ready: () =>
         (getWorkshed() !== $item`model train set` || have($effect`Double Hot Soupy Garbage`)) &&
@@ -627,7 +636,6 @@ export const LevelingQuest: Quest = {
           wishFor($effect`Fever From the Flavor`, false);
         }
 
-        cliExecute("cast Rest Upside Down");
         restoreMp(50);
         const usefulEffects: Effect[] = [
           $effect`Frosty Hand`, // +5 cold res from Cargo Shorts
@@ -1027,12 +1035,6 @@ export const LevelingQuest: Quest = {
     //   },
     //   limit: { tries: 1 },
     // },
-    {
-      name: "Restore MP with Rest Upside Down",
-      completed: () => myMp() >= 500,
-      do: () => cliExecute("cast Rest Upside Down"),
-      limit: { tries: 1 },
-    },
     {
       name: "Shadow Rift",
       prepare: (): void => {
