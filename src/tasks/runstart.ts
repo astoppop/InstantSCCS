@@ -147,18 +147,19 @@ export const RunStartQuest: Quest = {
       completed: () => get("_floundryItemCreated") || get("instant_saveFloundry", false),
       do: (): void => {
         const getFloundryItem = () => {
-          if (mainStat === $stat`Muscle`) {
-            retrieveItem($item`fish hatchet`);
-          } else if (mainStat === $stat`Mysticality`) {
-            retrieveItem($item`codpiece`, 1);
-            use($item`codpiece`, 1);
-            create($item`oil cap`, 1);
-            autosell($item`oil cap`, 1);
-          } else if (mainStat === $stat`Moxie`) {
-            retrieveItem($item`bass clarinet`);
-            use($item`bass clarinet`, 1);
-            autosell($item`white pixel`, 10);
-          }
+          retrieveItem($item`carpe`);
+          // if (mainStat === $stat`Muscle`) {
+          //   retrieveItem($item`fish hatchet`);
+          // } else if (mainStat === $stat`Mysticality`) {
+          //   retrieveItem($item`codpiece`, 1);
+          //   use($item`codpiece`, 1);
+          //   create($item`oil cap`, 1);
+          //   autosell($item`oil cap`, 1);
+          // } else if (mainStat === $stat`Moxie`) {
+          //   retrieveItem($item`bass clarinet`);
+          //   use($item`bass clarinet`, 1);
+          //   autosell($item`white pixel`, 10);
+          // }
         };
         const floundryClan = get("instant_floundryClan", "");
         if (floundryClan.length === 0) getFloundryItem();
