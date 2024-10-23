@@ -554,25 +554,6 @@ export const LevelingQuest: Quest = {
     //   outfit: { modifier: "myst, mp, -tie" },
     // },
     {
-      name: "Free Run for Cold Res",
-      completed: () =>
-        !useCenser ||
-        get("availableSeptEmbers") === 0 ||
-        have($effect`Double Hot Soupy Garbage`) ||
-        getWorkshed() !== $item`model train set`,
-      do: $location`The Dire Warren`,
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Reflex Hammer`)
-          .trySkill($skill`Snokebomb`)
-          .abort(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(),
-        acc1: $item`Lil' Doctor™ bag`,
-      }),
-      limit: { tries: 4 },
-    },
-    {
       name: "Map for BOFA Cold Res",
       completed: () =>
         myClass() != $class`Seal Clubber` ||
@@ -597,6 +578,25 @@ export const LevelingQuest: Quest = {
         modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
       }),
       limit: { tries: 1 },
+    },
+    {
+      name: "Free Run for Cold Res",
+      completed: () =>
+        !useCenser ||
+        get("availableSeptEmbers") === 0 ||
+        have($effect`Double Hot Soupy Garbage`) ||
+        getWorkshed() !== $item`model train set`,
+      do: $location`The Dire Warren`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Reflex Hammer`)
+          .trySkill($skill`Snokebomb`)
+          .abort(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`Lil' Doctor™ bag`,
+      }),
+      limit: { tries: 4 },
     },
     {
       name: "Eat Deep Dish",
