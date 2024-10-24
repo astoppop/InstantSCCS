@@ -556,7 +556,7 @@ export const LevelingQuest: Quest = {
       completed: () =>
         !have($item`bat wings`) ||
         get("_batWingsRestUsed") >= 11 ||
-        myMp() >= Math.min(200, myMaxmp() * 0.95),
+        myMp() >= Math.min(200, myMaxmp() * 0.7),
       do: () => useSkill($skill`Rest upside down`),
       limit: { tries: 11 },
     },
@@ -823,11 +823,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Buy Oversized Sparkler",
-      ready: () =>
-        have($effect`On the Trolley`) &&
-        have($effect`Everything Looks Blue`) &&
-        get("hasRange") &&
-        myMeat() >= 1000,
+      ready: () => have($effect`On the Trolley`) && get("hasRange") && myMeat() >= 950,
       completed: () => have($item`oversized sparkler`),
       do: () => buy($item`oversized sparkler`, 1),
       limit: { tries: 1 },
