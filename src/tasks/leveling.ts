@@ -93,11 +93,9 @@ import {
   getSynthColdBuff,
   getSynthExpBuff,
   getValidComplexCandyPairs,
-  haveCBBIngredients,
   mainStat,
   mainStatMaximizerStr,
   mainStatStr,
-  overleveled,
   reagentBalancerEffect,
   reagentBalancerIngredient,
   reagentBalancerItem,
@@ -124,7 +122,7 @@ const craftedCBBFoods: Item[] = $items`honey bun of Boris, roasted vegetable of 
 const craftedCBBEffects: Effect[] = craftedCBBFoods.map((it) => effectModifier(it, "effect"));
 let triedCraftingCBBFoods = false;
 
-const faxLevelingMonster = $monster`Black Crayon Penguin`;
+const faxLevelingMonster = $monster`Black Crayon Frat Orc`;
 // myClass() === $class`Seal Clubber`
 //   ? $monster`Black Crayon Frat Orc`
 //   : $monster`Black Crayon Beetle`;
@@ -554,6 +552,15 @@ export const LevelingQuest: Quest = {
     //   outfit: { modifier: "myst, mp, -tie" },
     // },
     {
+      name: "Restore mp (Bat Wings) (leveing)",
+      completed: () =>
+        !have($item`bat wings`) ||
+        get("_batWingsRestUsed") >= 11 ||
+        myMp() >= Math.min(200, myMaxmp() * 0.95),
+      do: () => useSkill($skill`Rest upside down`),
+      limit: { tries: 11 },
+    },
+    {
       name: "Map for BOFA Cold Res",
       completed: () =>
         myClass() != $class`Seal Clubber` ||
@@ -580,6 +587,50 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Get BOFA Pocket Wishes",
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_saberForceUses") >= 1 ||
+        !have($skill`Map the Monsters`) ||
+        get("_monstersMapped") >= 3 ||
+        get("_bookOfFactsWishes") > 0,
+      do: () => mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`),
+      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
+      outfit: () => ({
+        ...baseOutfit(false),
+        weapon: $item`Fourth of May Cosplay Saber`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Get BOFA Pocket Wishes (continued)",
+      after: ["Get BOFA Pocket Wishes"],
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_bookOfFactsWishes") >= 3,
+      do: () => $location`The Sleazy Back Alley`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 4 },
+    },
+    {
       name: "Free Run for Cold Res",
       completed: () =>
         !useCenser ||
@@ -603,15 +654,6 @@ export const LevelingQuest: Quest = {
       completed: () => get("deepDishOfLegendEaten") || !have($item`Deep Dish of Legend`),
       do: () => eat($item`Deep Dish of Legend`, 1),
       limit: { tries: 1 },
-    },
-    {
-      name: "Restore mp (Bat Wings) (leveing)",
-      completed: () =>
-        !have($item`bat wings`) ||
-        get("_batWingsRestUsed") >= 11 ||
-        myMp() >= Math.min(200, myMaxmp()),
-      do: () => useSkill($skill`Rest upside down`),
-      limit: { tries: 11 },
     },
     {
       name: "Sept-ember Mouthwash",
@@ -682,50 +724,6 @@ export const LevelingQuest: Quest = {
       post: (): void => {
         if (have($effect`Scarysauce`)) cliExecute("shrug scarysauce");
       },
-    },
-    {
-      name: "Get BOFA Pocket Wishes",
-      completed: () =>
-        myClass() != $class`Seal Clubber` ||
-        !have($item`Fourth of May Cosplay Saber`) ||
-        get("_saberForceUses") >= 1 ||
-        !have($skill`Map the Monsters`) ||
-        get("_monstersMapped") >= 3 ||
-        get("_bookOfFactsWishes") > 0,
-      do: () => mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`),
-      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
-      outfit: () => ({
-        ...baseOutfit(false),
-        weapon: $item`Fourth of May Cosplay Saber`,
-      }),
-      choices: { 1387: 2 },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Get BOFA Pocket Wishes (continued)",
-      after: ["Get BOFA Pocket Wishes"],
-      completed: () =>
-        myClass() != $class`Seal Clubber` ||
-        !have($item`Fourth of May Cosplay Saber`) ||
-        get("_bookOfFactsWishes") >= 3,
-      do: () => $location`The Sleazy Back Alley`,
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
-          .trySkill($skill`Chest X-Ray`)
-          .trySkill($skill`Shattering Punch`)
-          .attack(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(false),
-        acc1:
-          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
-            ? $item`Everfull Dart Holster`
-            : undefined,
-        acc2: $item`Lil' Doctor™ bag`,
-        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
-      }),
-      choices: { 1387: 2 },
-      limit: { tries: 4 },
     },
     {
       name: "Alice Army",
@@ -1757,93 +1755,93 @@ export const LevelingQuest: Quest = {
         sellMiscellaneousItems();
       },
     },
-    {
-      name: "Powerlevel",
-      completed: () =>
-        myBasestat(mainStat) >= targetBaseMainStat - targetBaseMainStatGap &&
-        (haveCBBIngredients(false) ||
-          overleveled() ||
-          craftedCBBEffects.some((ef) => have(ef)) ||
-          craftedCBBEffects.every((ef) => forbiddenEffects.includes(ef))) &&
-        (powerlevelingLocation() !== $location`The Neverending Party` ||
-          get("_neverendingPartyFreeTurns") >= 10),
-      do: powerlevelingLocation(),
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        unbreakableUmbrella();
-        garbageShirt();
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
-        restoreMp(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
-      },
-      outfit: baseOutfit,
-      limit: { tries: 1 },
-      choices: {
-        1094: 5,
-        1115: 6,
-        1322: 2,
-        1324: 5,
-      },
-      combat: new CombatStrategy().macro(
-        Macro.tryItem($item`red rocket`)
-          .trySkill($skill`Bowl Sideways`)
-          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
-          .default(useCinch),
-      ),
-      post: (): void => {
-        haveCBBIngredients(false, true);
-        if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
-        sendAutumnaton();
-        sellMiscellaneousItems();
-      },
-    },
-    {
-      name: "Acquire Wad of Dough",
-      completed: () =>
-        have($item`wad of dough`) ||
-        (get("instant_saveHoneyBun", false) && get("instant_saveWileyWheyBar", false)),
-      do: (): void => {
-        if (myMeat() < 100) throw new Error("Insufficient Meat to purchase all-purpose flower!");
-        if (!have($item`all-purpose flower`)) buy($item`all-purpose flower`, 1);
-        use($item`all-purpose flower`, 1);
-      },
-      post: (): void => {
-        if (!have($item`flat dough`)) use($item`wad of dough`, 1);
-      },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Craft and Eat CBB Foods",
-      after: ["Powerlevel"],
-      completed: () =>
-        craftedCBBEffects.every((ef) => have(ef) || forbiddenEffects.includes(ef)) ||
-        triedCraftingCBBFoods,
-      do: (): void => {
-        craftedCBBFoods.forEach((it) => {
-          const ef = effectModifier(it, "effect");
-          if (!have(ef) && !forbiddenEffects.includes(ef)) {
-            if (!have(it)) create(it, 1);
-            eat(it, 1);
-          }
-        });
+    // {
+    //   name: "Powerlevel",
+    //   completed: () =>
+    //     myBasestat(mainStat) >= targetBaseMainStat - targetBaseMainStatGap &&
+    //     (haveCBBIngredients(false) ||
+    //       overleveled() ||
+    //       craftedCBBEffects.some((ef) => have(ef)) ||
+    //       craftedCBBEffects.every((ef) => forbiddenEffects.includes(ef))) &&
+    //     (powerlevelingLocation() !== $location`The Neverending Party` ||
+    //       get("_neverendingPartyFreeTurns") >= 10),
+    //   do: powerlevelingLocation(),
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     unbreakableUmbrella();
+    //     garbageShirt();
+    //     usefulEffects.forEach((ef) => tryAcquiringEffect(ef));
+    //     restoreMp(50);
+    //     if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+    //       if (myMeat() >= 250) buy($item`red rocket`, 1);
+    //     }
+    //   },
+    //   outfit: baseOutfit,
+    //   limit: { tries: 1 },
+    //   choices: {
+    //     1094: 5,
+    //     1115: 6,
+    //     1322: 2,
+    //     1324: 5,
+    //   },
+    //   combat: new CombatStrategy().macro(
+    //     Macro.tryItem($item`red rocket`)
+    //       .trySkill($skill`Bowl Sideways`)
+    //       .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+    //       .default(useCinch),
+    //   ),
+    //   post: (): void => {
+    //     haveCBBIngredients(false, true);
+    //     if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
+    //     sendAutumnaton();
+    //     sellMiscellaneousItems();
+    //   },
+    // },
+    // {
+    //   name: "Acquire Wad of Dough",
+    //   completed: () =>
+    //     have($item`wad of dough`) ||
+    //     (get("instant_saveHoneyBun", false) && get("instant_saveWileyWheyBar", false)),
+    //   do: (): void => {
+    //     if (myMeat() < 100) throw new Error("Insufficient Meat to purchase all-purpose flower!");
+    //     if (!have($item`all-purpose flower`)) buy($item`all-purpose flower`, 1);
+    //     use($item`all-purpose flower`, 1);
+    //   },
+    //   post: (): void => {
+    //     if (!have($item`flat dough`)) use($item`wad of dough`, 1);
+    //   },
+    //   limit: { tries: 1 },
+    // },
+    // {
+    //   name: "Craft and Eat CBB Foods",
+    //   after: ["Powerlevel"],
+    //   completed: () =>
+    //     craftedCBBEffects.every((ef) => have(ef) || forbiddenEffects.includes(ef)) ||
+    //     triedCraftingCBBFoods,
+    //   do: (): void => {
+    //     craftedCBBFoods.forEach((it) => {
+    //       const ef = effectModifier(it, "effect");
+    //       if (!have(ef) && !forbiddenEffects.includes(ef)) {
+    //         if (!have(it)) create(it, 1);
+    //         eat(it, 1);
+    //       }
+    //     });
 
-        if (
-          itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
-          itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
-          !have($effect`Pretty Delicious`) &&
-          !get("instant_saveRicottaCasserole", false)
-        ) {
-          if (!have($item`baked veggie ricotta casserole`))
-            create($item`baked veggie ricotta casserole`, 1);
-          eat($item`baked veggie ricotta casserole`, 1);
-        }
+    //     if (
+    //       itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
+    //       itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
+    //       !have($effect`Pretty Delicious`) &&
+    //       !get("instant_saveRicottaCasserole", false)
+    //     ) {
+    //       if (!have($item`baked veggie ricotta casserole`))
+    //         create($item`baked veggie ricotta casserole`, 1);
+    //       eat($item`baked veggie ricotta casserole`, 1);
+    //     }
 
-        triedCraftingCBBFoods = true;
-      },
-      limit: { tries: 1 },
-    },
+    //     triedCraftingCBBFoods = true;
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Apriling Band Quad Tom Sandworms",
       completed: () => !have($item`Apriling band quad tom`) || get("_aprilBandTomUses") >= 3,

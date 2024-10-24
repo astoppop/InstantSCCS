@@ -33,7 +33,6 @@ import {
   storageAmount,
   takeStorage,
   toInt,
-  turnsPlayed,
   use,
   useFamiliar,
   useSkill,
@@ -517,8 +516,8 @@ export const RunStartQuest: Quest = {
           statStation, // main stats
           Station.VIEWING_PLATFORM, // all stats
           Station.WATER_BRIDGE, // +ML
-          Station.TOWER_FIZZY, // mp regen
           Station.TOWER_FROZEN, // hot resist (useful)
+          Station.TOWER_FIZZY, // mp regen
           // have($item`Sept-Ember Censer`) && !get("instant_saveEmbers", false)
           //   ? Station.TOWER_SEWAGE // cold res for mouthwash
           //   : Station.CANDY_FACTORY, // candies (we don't get items during free banishes)
@@ -526,35 +525,35 @@ export const RunStartQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Grab Trainset Meat",
-      prepare: (): void => {
-        if (have($item`unbreakable umbrella`) && get("umbrellaState") !== "pitchfork style")
-          cliExecute("umbrella weapon");
-      },
-      completed: () =>
-        get("trainsetPosition") > 0 ||
-        turnsPlayed() > 0 ||
-        get("hasMaydayContract") ||
-        get("instant_skipEarlyTrainsetMeat", false),
-      do: $location`The Dire Warren`,
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
-          .trySkill($skill`Chest X-Ray`)
-          .trySkill($skill`Shattering Punch`)
-          .attack(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(false),
-        acc1:
-          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
-            ? $item`Everfull Dart Holster`
-            : undefined,
-        acc2: $item`Lil' Doctor™ bag`,
-        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
-      }),
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Grab Trainset Meat",
+    //   prepare: (): void => {
+    //     if (have($item`unbreakable umbrella`) && get("umbrellaState") !== "pitchfork style")
+    //       cliExecute("umbrella weapon");
+    //   },
+    //   completed: () =>
+    //     get("trainsetPosition") > 0 ||
+    //     turnsPlayed() > 0 ||
+    //     get("hasMaydayContract") ||
+    //     get("instant_skipEarlyTrainsetMeat", false),
+    //   do: $location`The Dire Warren`,
+    //   combat: new CombatStrategy().macro(
+    //     Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+    //       .trySkill($skill`Chest X-Ray`)
+    //       .trySkill($skill`Shattering Punch`)
+    //       .attack(),
+    //   ),
+    //   outfit: () => ({
+    //     ...baseOutfit(false),
+    //     acc1:
+    //       have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+    //         ? $item`Everfull Dart Holster`
+    //         : undefined,
+    //     acc2: $item`Lil' Doctor™ bag`,
+    //     modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+    //   }),
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Set Apriling Band Helmet (NC)",
       completed: () => !AprilingBandHelmet.canChangeSong(),
