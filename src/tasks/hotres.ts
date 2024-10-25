@@ -70,7 +70,7 @@ export const HotResQuest: Quest = {
         ...baseOutfit(),
         acc1: $item`Lil' Doctor™ bag`,
       }),
-      limit: { tries: 2 },
+      limit: { tries: 5 },
     },
     {
       name: "Configure Trainset",
