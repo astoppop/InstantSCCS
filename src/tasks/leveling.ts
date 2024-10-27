@@ -144,6 +144,8 @@ const muscleList: Effect[] = [
   $effect`Muddled`,
   $effect`Lack of Body-Building`,
   $effect`Adrenaline Rush`,
+  $effect`Macaroni Coating`,
+  $effect`Rage of the Reindeer`,
   // Weapon dmg
   $effect`Carol of the Bulls`,
 ];
