@@ -40,7 +40,6 @@ import {
   clamp,
   Clan,
   CommunityService,
-  DaylightShavings,
   get,
   have,
   uneffect,
@@ -48,9 +47,8 @@ import {
 } from "libram";
 import Macro, { haveFreeBanish } from "../combat";
 import { Quest } from "../engine/task";
-import { chooseFamiliar } from "../familiars";
 import { handleCustomPulls, logTestSetup, tryAcquiringEffect, wishFor } from "../lib";
-import { sugarItemsAboutToBreak } from "../outfit";
+import { baseOutfit } from "../outfit";
 import { forbiddenEffects } from "../resources";
 
 const boozeTestMaximizerString =
@@ -181,30 +179,45 @@ export const BoozeDropQuest: Quest = {
           use($item`photocopied monster`);
         }
       },
-      outfit: () => ({
-        hat:
-          DaylightShavings.nextBuff() === $effect`Musician's Musician's Moustache` &&
-          !DaylightShavings.hasBuff() &&
-          have($item`Daylight Shavings Helmet`)
-            ? $item`Daylight Shavings Helmet`
-            : undefined,
-        back: $item`vampyric cloake`,
-        weapon: $item`Fourth of May Cosplay Saber`,
-        offhand: have($skill`Double-Fisted Skull Smashing`)
-          ? $item`industrial fire extinguisher`
-          : undefined,
-        familiar: chooseFamiliar(false),
-        modifier: "myst",
-        avoid: sugarItemsAboutToBreak(),
-      }),
-      choices: { 1387: 3 },
+      // outfit: () => ({
+      //   hat:
+      //     DaylightShavings.nextBuff() === $effect`Musician's Musician's Moustache` &&
+      //     !DaylightShavings.hasBuff() &&
+      //     have($item`Daylight Shavings Helmet`)
+      //       ? $item`Daylight Shavings Helmet`
+      //       : undefined,
+      //   back: $item`vampyric cloake`,
+      //   weapon: $item`Fourth of May Cosplay Saber`,
+      //   offhand: have($skill`Double-Fisted Skull Smashing`)
+      //     ? $item`industrial fire extinguisher`
+      //     : undefined,
+      //   familiar: chooseFamiliar(false),
+      //   modifier: "myst",
+      //   avoid: sugarItemsAboutToBreak(),
+      // }),
+      // choices: { 1387: 3 },
+      // combat: new CombatStrategy().macro(
+      //   Macro.trySkill($skill`Bowl Straight Up`)
+      //     .trySkill($skill`Become a Bat`)
+      //     .trySkill($skill`Fire Extinguisher: Polar Vortex`)
+      //     .trySkill($skill`Use the Force`)
+      //     .default(),
+      // ),
       combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Bowl Straight Up`)
-          .trySkill($skill`Become a Bat`)
-          .trySkill($skill`Fire Extinguisher: Polar Vortex`)
-          .trySkill($skill`Use the Force`)
-          .default(),
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
       ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
       limit: { tries: 5 },
     },
     {
