@@ -529,6 +529,24 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Eat Deep Dish",
+      completed: () => get("deepDishOfLegendEaten") || !have($item`Deep Dish of Legend`),
+      do: () => eat($item`Deep Dish of Legend`, 1),
+      limit: { tries: 1 },
+    },
+    {
+      name: "Eat Calzone",
+      completed: () => get("calzoneOfLegendEaten") || !have($item`Calzone of Legend`),
+      do: () => eat($item`Calzone of Legend`, 1),
+      limit: { tries: 1 },
+    },
+    {
+      name: "Eat Pizza",
+      completed: () => get("pizzaOfLegendEaten") || !have($item`Pizza of Legend`),
+      do: () => eat($item`Pizza of Legend`, 1),
+      limit: { tries: 1 },
+    },
+    {
       name: "Bastille",
       completed: () => get("_bastilleGames") > 0 || !have($item`Bastille Battalion control rig`),
       do: () => cliExecute("bastille.ash mainstat brutalist"),
@@ -558,7 +576,7 @@ export const LevelingQuest: Quest = {
       completed: () =>
         !have($item`bat wings`) ||
         get("_batWingsRestUsed") >= 11 ||
-        myMp() >= Math.min(200, myMaxmp() * 0.7),
+        myMp() >= Math.min(200, myMaxmp() * 0.5),
       do: () => useSkill($skill`Rest upside down`),
       limit: { tries: 11 },
     },
@@ -652,12 +670,6 @@ export const LevelingQuest: Quest = {
       limit: { tries: 4 },
     },
     {
-      name: "Eat Deep Dish",
-      completed: () => get("deepDishOfLegendEaten") || !have($item`Deep Dish of Legend`),
-      do: () => eat($item`Deep Dish of Legend`, 1),
-      limit: { tries: 1 },
-    },
-    {
       name: "Sept-ember Mouthwash",
       ready: () =>
         (getWorkshed() !== $item`model train set` || have($effect`Double Hot Soupy Garbage`)) &&
@@ -738,18 +750,6 @@ export const LevelingQuest: Quest = {
       completed: () =>
         get("_grimoireConfiscatorSummons") > 0 || !have($skill`Summon Confiscated Things`),
       do: () => useSkill($skill`Summon Confiscated Things`),
-      limit: { tries: 1 },
-    },
-    {
-      name: "Eat Calzone",
-      completed: () => get("calzoneOfLegendEaten") || !have($item`Calzone of Legend`),
-      do: () => eat($item`Calzone of Legend`, 1),
-      limit: { tries: 1 },
-    },
-    {
-      name: "Eat Pizza",
-      completed: () => get("pizzaOfLegendEaten") || !have($item`Pizza of Legend`),
-      do: () => eat($item`Pizza of Legend`, 1),
       limit: { tries: 1 },
     },
     {
