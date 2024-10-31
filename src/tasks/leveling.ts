@@ -615,7 +615,10 @@ export const LevelingQuest: Quest = {
         !have($skill`Map the Monsters`) ||
         get("_monstersMapped") >= 3 ||
         get("_bookOfFactsWishes") > 0,
-      do: () => mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`),
+      do: () => {
+        mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`);
+        visitUrl("main.php");
+      },
       combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
       outfit: () => ({
         ...baseOutfit(false),
