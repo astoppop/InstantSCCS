@@ -508,8 +508,8 @@ export const RunStartQuest: Quest = {
         use($item`model train set`);
         setConfiguration([
           Station.GAIN_MEAT, // meat (we don't gain meat during free banishes)
-          Station.COAL_HOPPER, // double stat gain
           Station.TOWER_SEWAGE, // cold res for mouthwash
+          Station.COAL_HOPPER, // double stat gain
           statStation, // main stats
           Station.VIEWING_PLATFORM, // all stats
           Station.WATER_BRIDGE, // +ML

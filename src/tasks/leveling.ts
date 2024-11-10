@@ -658,7 +658,7 @@ export const LevelingQuest: Quest = {
       completed: () =>
         !useCenser ||
         get("availableSeptEmbers") === 0 ||
-        have($effect`Double Hot Soupy Garbage`) ||
+        have($effect`Hot Soupy Garbage`) ||
         getWorkshed() !== $item`model train set`,
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
