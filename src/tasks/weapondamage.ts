@@ -243,6 +243,22 @@ export const WeaponDamageQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Pull wasabi marble soda",
+      completed: () =>
+        inHardcore() || // Assume user consciously chose HC and accepts the consequences that come with it
+        have($item`wasabi marble soda`) ||
+        get("_roninStoragePulls")
+          .split(",")
+          .includes(toInt($item`wasabi marble soda`).toString()),
+      do: (): void => {
+        if (storageAmount($item`wasabi marble soda`) === 0) {
+          print("Uh oh! You do not seem to have a wasabi marble soda in Hagnk's", "red");
+        }
+        takeStorage($item`wasabi marble soda`, 1);
+      },
+      limit: { tries: 1 },
+    },
+    {
       name: "Test",
       prepare: (): void => {
         if (have($item`SongBoom™ BoomBox`)) SongBoom.setSong("These Fists Were Made for Punchin'");

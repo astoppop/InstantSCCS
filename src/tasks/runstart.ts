@@ -24,14 +24,11 @@ import {
   myMeat,
   myMp,
   mySoulsauce,
-  print,
   restoreHp,
   restoreMp,
   retrieveItem,
   reverseNumberology,
   runChoice,
-  storageAmount,
-  takeStorage,
   toInt,
   use,
   useFamiliar,
@@ -262,27 +259,27 @@ export const RunStartQuest: Quest = {
     //   },
     //   outfit: { modifier: "myst, mp, -tie" },
     // },
-    {
-      name: "Borrowed Time",
-      prepare: (): void => {
-        if (have($item`borrowed time`)) return;
-        if (have($skill`Summon Clip Art`) && get("tomeSummons") < 3)
-          create($item`borrowed time`, 1);
-        else takeStorage($item`borrowed time`, 1);
-      },
-      completed: () => get("_borrowedTimeUsed"),
-      do: (): void => {
-        if (storageAmount($item`borrowed time`) === 0 && !have($item`borrowed time`)) {
-          print("Uh oh! You do not seem to have a borrowed time in Hagnk's", "red");
-          print(
-            "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
-            "red",
-          );
-        }
-        use($item`borrowed time`, 1);
-      },
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Borrowed Time",
+    //   prepare: (): void => {
+    //     if (have($item`borrowed time`)) return;
+    //     if (have($skill`Summon Clip Art`) && get("tomeSummons") < 3)
+    //       create($item`borrowed time`, 1);
+    //     else takeStorage($item`borrowed time`, 1);
+    //   },
+    //   completed: () => get("_borrowedTimeUsed"),
+    //   do: (): void => {
+    //     if (storageAmount($item`borrowed time`) === 0 && !have($item`borrowed time`)) {
+    //       print("Uh oh! You do not seem to have a borrowed time in Hagnk's", "red");
+    //       print(
+    //         "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
+    //         "red",
+    //       );
+    //     }
+    //     use($item`borrowed time`, 1);
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Numberology",
       ready: () => Object.keys(reverseNumberology()).includes("69"),
@@ -912,18 +909,18 @@ export const RunStartQuest: Quest = {
         have($item`Apriling band saxophone`) ||
         have($item`11-leaf clover`) ||
         have($effect`Lucky!`),
-      completed: () => myInebriety() >= 1 || get("instant_skipDistilledFortifiedWine", false),
+      completed: () => myInebriety() >= 4 || get("instant_skipDistilledFortifiedWine", false),
       do: (): void => {
         if (have($item`Apriling band saxophone`) && !have($effect`Lucky!`))
           AprilingBandHelmet.play($item`Apriling band saxophone`);
         if (!have($effect`Lucky!`)) use($item`11-leaf clover`);
         if (!have($item`distilled fortified wine`)) adv1($location`The Sleazy Back Alley`, -1);
-        while (have($item`distilled fortified wine`) && myInebriety() < 1) {
+        while (have($item`distilled fortified wine`) && myInebriety() < 4) {
           tryAcquiringEffect($effect`Ode to Booze`);
           drink($item`distilled fortified wine`, 1);
         }
       },
-      limit: { tries: 1 },
+      limit: { tries: 2 },
     },
     {
       name: "Kramco",

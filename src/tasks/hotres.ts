@@ -7,7 +7,6 @@ import {
   Effect,
   getWorkshed,
   inebrietyLimit,
-  myHash,
   myInebriety,
   print,
   use,
@@ -54,31 +53,31 @@ export const HotResQuest: Quest = {
   name: "Hot Res",
   completed: () => CommunityService.HotRes.isDone(),
   tasks: [
-    {
-      name: "Wish and Force Factory Worker",
-      completed: () =>
-        have($item`heat-resistant gloves`) ||
-        have($item`lava-proof pants`) ||
-        !have($item`Fourth of May Cosplay Saber`) ||
-        get("_saberForceUses") >= 1 ||
-        !have($skill`Map the Monsters`),
-      do: () => {
-        visitUrl("inv_use.php?pwd=" + myHash() + "&which=3&whichitem=9537", false, true);
-        visitUrl(
-          "choice.php?pwd&whichchoice=1267&option=1&wish=to fight a factory worker",
-          true,
-          true,
-        );
-        visitUrl("main.php", false);
-      },
-      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
-      outfit: () => ({
-        ...baseOutfit(false),
-        weapon: $item`Fourth of May Cosplay Saber`,
-      }),
-      choices: { 1387: 1 },
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Wish and Force Factory Worker",
+    //   completed: () =>
+    //     have($item`heat-resistant gloves`) ||
+    //     have($item`lava-proof pants`) ||
+    //     !have($item`Fourth of May Cosplay Saber`) ||
+    //     get("_saberForceUses") >= 2 ||
+    //     !have($skill`Map the Monsters`),
+    //   do: () => {
+    //     visitUrl("inv_use.php?pwd=" + myHash() + "&which=3&whichitem=9537", false, true);
+    //     visitUrl(
+    //       "choice.php?pwd&whichchoice=1267&option=1&wish=to fight a factory worker",
+    //       true,
+    //       true,
+    //     );
+    //     visitUrl("main.php", false);
+    //   },
+    //   combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
+    //   outfit: () => ({
+    //     ...baseOutfit(false),
+    //     weapon: $item`Fourth of May Cosplay Saber`,
+    //   }),
+    //   choices: { 1387: 1 },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Free Run for Hot Res",
       completed: () =>

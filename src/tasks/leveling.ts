@@ -186,7 +186,7 @@ const usefulEffects: Effect[] = [
   $effect`Feeling Excited`,
   $effect`Triple-Sized`,
   $effect`substats.enh`,
-  // $effect`Hulkien`,
+  $effect`Hulkien`,
   $effect`Broad-Spectrum Vaccine`,
   // $effect`Think Win-Lose`,
   // $effect`Confidence of the Votive`,
@@ -698,7 +698,7 @@ export const LevelingQuest: Quest = {
         restoreMp(50);
         const usefulEffects: Effect[] = [
           $effect`Frosty Hand`, // +5 cold res from Cargo Shorts
-          $effect`Rainbowolin`, // +4 cold res from Pillkeeper
+          // $effect`Rainbowolin`, // +4 cold res from Pillkeeper
           $effect`Cold as Nice`, // +3 cold res from Beach Comb
           $effect`Egged On`, // +3 cold res from Rockin' Robin's drop
           $effect`Scarysauce`, // +2 cold res
