@@ -606,72 +606,25 @@ export const LevelingQuest: Quest = {
       }),
       limit: { tries: 1 },
     },
-    {
-      name: "Get BOFA Pocket Wishes",
-      completed: () =>
-        myClass() != $class`Seal Clubber` ||
-        !have($item`Fourth of May Cosplay Saber`) ||
-        get("_saberForceUses") >= 1 ||
-        !have($skill`Map the Monsters`) ||
-        get("_monstersMapped") >= 3 ||
-        get("_bookOfFactsWishes") > 0,
-      do: () => {
-        mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`);
-        visitUrl("main.php");
-      },
-      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
-      outfit: () => ({
-        ...baseOutfit(false),
-        weapon: $item`Fourth of May Cosplay Saber`,
-      }),
-      choices: { 1387: 2 },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Get BOFA Pocket Wishes (continued)",
-      after: ["Get BOFA Pocket Wishes"],
-      completed: () =>
-        myClass() != $class`Seal Clubber` ||
-        !have($item`Fourth of May Cosplay Saber`) ||
-        get("_bookOfFactsWishes") >= 3,
-      do: () => $location`The Sleazy Back Alley`,
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
-          .trySkill($skill`Chest X-Ray`)
-          .trySkill($skill`Shattering Punch`)
-          .attack(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(false),
-        acc1:
-          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
-            ? $item`Everfull Dart Holster`
-            : undefined,
-        acc2: $item`Lil' Doctor™ bag`,
-        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
-      }),
-      choices: { 1387: 2 },
-      limit: { tries: 4 },
-    },
-    {
-      name: "Free Run for Cold Res",
-      completed: () =>
-        !useCenser ||
-        get("availableSeptEmbers") === 0 ||
-        have($effect`Hot Soupy Garbage`) ||
-        getWorkshed() !== $item`model train set`,
-      do: $location`The Dire Warren`,
-      combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Reflex Hammer`)
-          .trySkill($skill`Snokebomb`)
-          .abort(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(),
-        acc1: $item`Lil' Doctor™ bag`,
-      }),
-      limit: { tries: 4 },
-    },
+    // {
+    //   name: "Free Run for Cold Res",
+    //   completed: () =>
+    //     !useCenser ||
+    //     get("availableSeptEmbers") === 0 ||
+    //     have($effect`Hot Soupy Garbage`) ||
+    //     getWorkshed() !== $item`model train set`,
+    //   do: $location`The Dire Warren`,
+    //   combat: new CombatStrategy().macro(
+    //     Macro.trySkill($skill`Reflex Hammer`)
+    //       .trySkill($skill`Snokebomb`)
+    //       .abort(),
+    //   ),
+    //   outfit: () => ({
+    //     ...baseOutfit(),
+    //     acc1: $item`Lil' Doctor™ bag`,
+    //   }),
+    //   limit: { tries: 4 },
+    // },
     {
       name: "Sept-ember Mouthwash",
       ready: () =>
@@ -741,6 +694,53 @@ export const LevelingQuest: Quest = {
       post: (): void => {
         if (have($effect`Scarysauce`)) cliExecute("shrug scarysauce");
       },
+    },
+    {
+      name: "Get BOFA Pocket Wishes",
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_saberForceUses") >= 1 ||
+        !have($skill`Map the Monsters`) ||
+        get("_monstersMapped") >= 3 ||
+        get("_bookOfFactsWishes") > 0,
+      do: () => {
+        mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`);
+        visitUrl("main.php");
+      },
+      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
+      outfit: () => ({
+        ...baseOutfit(false),
+        weapon: $item`Fourth of May Cosplay Saber`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Get BOFA Pocket Wishes (continued)",
+      after: ["Get BOFA Pocket Wishes"],
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_bookOfFactsWishes") >= 3,
+      do: () => $location`The Sleazy Back Alley`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 4 },
     },
     {
       name: "Alice Army",
