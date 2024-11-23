@@ -13,6 +13,7 @@ import {
   equip,
   getWorkshed,
   haveEquipped,
+  holiday,
   inebrietyLimit,
   inHardcore,
   Item,
@@ -81,7 +82,7 @@ import {
   withChoice,
 } from "libram";
 import { mapMonster } from "libram/dist/resources/2020/Cartography";
-import { rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
+import { chooseQuest, rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
 import Macro, { haveFreeBanish } from "../combat";
 import { Quest } from "../engine/task";
 import {
@@ -1025,58 +1026,6 @@ export const LevelingQuest: Quest = {
     //   },
     //   limit: { tries: 1 },
     // },
-    // {
-    //   name: "Get Rufus Quest",
-    //   completed: () => get("_shadowAffinityToday") || !have($item`closed-circuit pay phone`),
-    //   do: (): void => {
-    //     chooseQuest(() => 2);
-    //     if (holiday().includes("April Fool's Day")) visitUrl("questlog.php?which=7");
-    //   },
-    //   limit: { tries: 1 },
-    // },
-    {
-      name: "Shadow Rift",
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        unbreakableUmbrella();
-        restoreMp(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
-
-        if (
-          myClass() === $class`Pastamancer` &&
-          have($item`Sept-Ember Censer`) &&
-          have($item`Daylight Shavings Helmet`) &&
-          get("lastBeardBuff") === 0 && // We have not gotten the beard buff yet
-          !get("instant_saveEmbers", false) &&
-          !have($item`bembershoot`) // We have not used the mouthwash yet
-        )
-          equip($slot`hat`, $item`Daylight Shavings Helmet`); // Grab Grizzly Beard for mouthwash
-      },
-      completed: () =>
-        have($item`Rufus's shadow lodestone`) ||
-        (!have($effect`Shadow Affinity`) && get("encountersUntilSRChoice") !== 0) ||
-        !have($item`closed-circuit pay phone`),
-      do: bestShadowRift(),
-      combat: new CombatStrategy().macro(
-        Macro.tryItem($item`red rocket`)
-          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
-          .default(),
-      ),
-      outfit: () => ({
-        ...baseOutfit(),
-        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
-      }),
-      post: (): void => {
-        if (have(rufusTarget() as Item)) {
-          withChoice(1498, 1, () => use($item`closed-circuit pay phone`));
-        }
-        sendAutumnaton();
-        sellMiscellaneousItems();
-      },
-      limit: { tries: 12 },
-    },
     {
       name: "Use Reagent Booster",
       completed: () =>
@@ -1354,6 +1303,58 @@ export const LevelingQuest: Quest = {
         }
       },
       outfit: { modifier: "myst, mp" },
+    },
+    {
+      name: "Get Rufus Quest",
+      completed: () => get("_shadowAffinityToday") || !have($item`closed-circuit pay phone`),
+      do: (): void => {
+        chooseQuest(() => 2);
+        if (holiday().includes("April Fool's Day")) visitUrl("questlog.php?which=7");
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Shadow Rift",
+      prepare: (): void => {
+        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+        unbreakableUmbrella();
+        restoreMp(50);
+        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+          if (myMeat() >= 250) buy($item`red rocket`, 1);
+        }
+
+        if (
+          myClass() === $class`Pastamancer` &&
+          have($item`Sept-Ember Censer`) &&
+          have($item`Daylight Shavings Helmet`) &&
+          get("lastBeardBuff") === 0 && // We have not gotten the beard buff yet
+          !get("instant_saveEmbers", false) &&
+          !have($item`bembershoot`) // We have not used the mouthwash yet
+        )
+          equip($slot`hat`, $item`Daylight Shavings Helmet`); // Grab Grizzly Beard for mouthwash
+      },
+      completed: () =>
+        have($item`Rufus's shadow lodestone`) ||
+        (!have($effect`Shadow Affinity`) && get("encountersUntilSRChoice") !== 0) ||
+        !have($item`closed-circuit pay phone`),
+      do: bestShadowRift(),
+      combat: new CombatStrategy().macro(
+        Macro.tryItem($item`red rocket`)
+          // .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+          .default(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+      }),
+      post: (): void => {
+        if (have(rufusTarget() as Item)) {
+          withChoice(1498, 1, () => use($item`closed-circuit pay phone`));
+        }
+        sendAutumnaton();
+        sellMiscellaneousItems();
+      },
+      limit: { tries: 12 },
     },
     {
       name: "Monster Habitats",
