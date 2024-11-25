@@ -660,8 +660,10 @@ export const LevelingQuest: Quest = {
           $effect`Feeling Peaceful`, // +2 cold res from Emotion Chip
           $effect`Astral Shell`, // +1 cold res
 
+          // familiar weight
           $effect`Empathy`,
           $effect`Leash of Linguini`,
+          $effect`Party Soundtrack`,
         ];
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
       },
