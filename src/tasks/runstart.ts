@@ -909,18 +909,18 @@ export const RunStartQuest: Quest = {
         have($item`Apriling band saxophone`) ||
         have($item`11-leaf clover`) ||
         have($effect`Lucky!`),
-      completed: () => myInebriety() >= 4 || get("instant_skipDistilledFortifiedWine", false),
+      completed: () => myInebriety() >= 3 || get("instant_skipDistilledFortifiedWine", false),
       do: (): void => {
         if (have($item`Apriling band saxophone`) && !have($effect`Lucky!`))
           AprilingBandHelmet.play($item`Apriling band saxophone`);
         if (!have($effect`Lucky!`)) use($item`11-leaf clover`);
         if (!have($item`distilled fortified wine`)) adv1($location`The Sleazy Back Alley`, -1);
-        while (have($item`distilled fortified wine`) && myInebriety() < 4) {
+        while (have($item`distilled fortified wine`) && myInebriety() < 3) {
           tryAcquiringEffect($effect`Ode to Booze`);
           drink($item`distilled fortified wine`, 1);
         }
       },
-      limit: { tries: 2 },
+      limit: { tries: 1 },
     },
     {
       name: "Kramco",

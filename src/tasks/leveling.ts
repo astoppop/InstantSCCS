@@ -1463,7 +1463,6 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-
     {
       name: "Mimic Leveling Monster",
       prepare: (): void => {
