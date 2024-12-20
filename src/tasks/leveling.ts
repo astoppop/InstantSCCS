@@ -1490,7 +1490,10 @@ export const LevelingQuest: Quest = {
         ChestMimic.differentiate(factoryWorker);
       },
       combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
-      outfit: baseOutfit,
+      outfit: () => ({
+        ...baseOutfit(false),
+        weapon: $item`Fourth of May Cosplay Saber`,
+      }),
       post: (): void => {
         visitUrl("main.php");
       },
