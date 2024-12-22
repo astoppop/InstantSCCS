@@ -12,6 +12,7 @@ import {
   effectModifier,
   equip,
   getWorkshed,
+  handlingChoice,
   haveEquipped,
   holiday,
   inebrietyLimit,
@@ -735,6 +736,12 @@ export const LevelingQuest: Quest = {
         ...baseOutfit(false),
         weapon: $item`Fourth of May Cosplay Saber`,
       }),
+      post: (): void => {
+        visitUrl("main.php");
+        if (handlingChoice()) {
+          runChoice(get("choiceAdventure1387", 2));
+        }
+      },
       choices: { 1387: 2 },
       limit: { tries: 1 },
     },
@@ -1496,6 +1503,9 @@ export const LevelingQuest: Quest = {
       }),
       post: (): void => {
         visitUrl("main.php");
+        if (handlingChoice()) {
+          runChoice(get("choiceAdventure1387", 3));
+        }
       },
       choices: { 1387: 3 },
       limit: { tries: 1 },
