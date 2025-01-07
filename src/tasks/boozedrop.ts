@@ -42,8 +42,10 @@ import {
   CommunityService,
   get,
   have,
+  StillSuit,
   uneffect,
   withChoice,
+  withProperty
 } from "libram";
 import Macro, { haveFreeBanish } from "../combat";
 import { Quest } from "../engine/task";
@@ -400,6 +402,15 @@ export const BoozeDropQuest: Quest = {
         }
         handleCustomPulls("instant_boozeTestPulls", boozeTestMaximizerString);
 
+        if (
+          CommunityService.BoozeDrop.actualCost() > 1 &&
+          StillSuit.distillateModifier("Item Drop") >= 15 &&
+          !get("instant_saveStillsuit", false) &&
+          myInebriety() + 1 < inebrietyLimit() &&
+          !have($effect`Buzzed on Distillate`)
+        )
+          StillSuit.drinkDistillate();
+
         // If it saves us >= 6 turns, try using a wish
         if (CommunityService.BoozeDrop.actualCost() >= 7) wishFor($effect`Infernal Thirst`);
       },
@@ -416,7 +427,10 @@ export const BoozeDropQuest: Quest = {
             "red",
           );
         }
-        CommunityService.BoozeDrop.run(() => logTestSetup(CommunityService.BoozeDrop), maxTurns);
+        // Temporary fix till CommunityService and MummingTrunk gets fixed in Libram
+        withProperty("_mummeryMods", "", () =>
+          CommunityService.BoozeDrop.run(() => logTestSetup(CommunityService.BoozeDrop), maxTurns),
+        );
       },
       outfit: {
         modifier: boozeTestMaximizerString,

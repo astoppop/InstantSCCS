@@ -10,6 +10,7 @@ import {
   currentMcd,
   drink,
   equip,
+  familiarEquippedEquipment,
   getCampground,
   getWorkshed,
   haveEquipped,
@@ -61,6 +62,7 @@ import {
   Pantogram,
   set,
   SongBoom,
+  StillSuit,
 } from "libram";
 import { mapMonster } from "libram/dist/resources/2020/Cartography";
 import { canConfigure, setConfiguration, Station } from "libram/dist/resources/2022/TrainSet";
@@ -81,6 +83,8 @@ import {
 } from "../lib";
 import { baseOutfit, unbreakableUmbrella } from "../outfit";
 import { excludedFamiliars } from "../resources";
+
+const bestStillsuitFamiliar = StillSuit.bestFamiliar("Item Drop");
 
 export const RunStartQuest: Quest = {
   name: "Run Start",
@@ -135,6 +139,15 @@ export const RunStartQuest: Quest = {
         autosell($item`baconstone`, itemAmount($item`baconstone`));
         if (!get("instant_savePorquoise", false))
           autosell($item`porquoise`, itemAmount($item`porquoise`));
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Set up Sweatsuit",
+      ready: () => have($item`tiny stillsuit`),
+      completed: () => familiarEquippedEquipment(bestStillsuitFamiliar) === $item`tiny stillsuit`,
+      do: (): void => {
+        equip(bestStillsuitFamiliar, $item`tiny stillsuit`);
       },
       limit: { tries: 1 },
     },
