@@ -31,6 +31,7 @@ import {
   myMaxhp,
   myMp,
   myPrimestat,
+  myTurncount,
   numericModifier,
   print,
   restoreMp,
@@ -561,7 +562,7 @@ export function chooseHeaviestEquippedFamiliar(checkedFamiliars?: Familiar[]): {
   expectedWeight: number;
 } {
   return (checkedFamiliars ?? Familiar.all())
-    .filter((familiar) => have(familiar) && !excludedFamiliars.includes(familiar.id))
+    .filter((familiar) => have(familiar) && !excludedFamiliars.includes(familiar))
     .map((familiar) => {
       const bestEquip = bestFamiliarEquip(familiar);
 
@@ -658,7 +659,8 @@ export function computeCombatFrequency(): number {
   const codpiece =
     have($item`Clan VIP Lounge key`) && !get("instant_saveFloundry", false) ? -10 : 0;
   const atlas = get("hasMaydayContract") && !get("instant_saveMayday", false) ? -5 : 0;
-  const accessories = sumNumbers([kgb, codpiece, atlas]);
+  const mcHugeLargeLeftSki = have($item`McHugeLarge duffel bag`) ? -5 : 0;
+  const accessories = sumNumbers([kgb, codpiece, atlas, mcHugeLargeLeftSki].sort().slice(0, 3));
 
   const rose = -20;
   const smoothMovements = have($skill`Smooth Movement`) ? -5 : 0;
@@ -715,8 +717,10 @@ export function computeCombatFrequency(): number {
     // hippyAntimilitarism,
   ]);
 
-  const disgeist = have($familiar`Disgeist`) ? -5 : 0;
-  const familiar = disgeist;
+  // No good way of determining familiar weight for the NC test yet
+  const disgeist = have($familiar`Disgeist`) ? -5 : 0; // -min(10, floor(weight / 7.5))
+  const peaceTurkey = have($familiar`Peace Turkey`) ? -5 : 0; // -min(10, floor(weight / 5.0))
+  const familiar = sumNumbers([disgeist, peaceTurkey].sort().slice(0, 1));
 
   const darkHorse = get("horseryAvailable") ? -5 : 0;
   const others = darkHorse;
@@ -943,4 +947,40 @@ export function haveFreeRunSource(): boolean {
     !have($effect`Everything Looks Green`) &&
     have($item`spring shoes` || have($item`Roman Candelabra`))
   );
+}
+
+export function cyberRealmTurnsRun(): number {
+  return get("_cyberZone1Turns") + get("_cyberZone2Turns") + get("_cyberZone3Turns");
+}
+
+export function cyberRealmTurnsAvailable(): number {
+  if (!have($item`server room key`)) return 0;
+  const availableFreeFights = have($skill`OVERCLOCK(10)`) ? 10 : 0;
+  return Math.max(0, availableFreeFights - cyberRealmTurnsRun());
+}
+
+export function cyberRealmZone(): Location {
+  const screechTurns = get("banishedPhyla").match(/Patriotic Screech:(\d+)/)?.[1];
+  // If we don't have an active banish (or it ran out), prioritize lower zones
+  if (toInt(screechTurns ?? "-1") <= myTurncount()) {
+    if (get("_cyberZone1Turns") < 9) return $location`Cyberzone 1`;
+    else if (get("_cyberZone2Turns") < 9) return $location`Cyberzone 2`;
+    return $location`Cyberzone 3`;
+  }
+  // Else prioritize higher zones
+  if (get("_cyberZone3Turns") < 9) return $location`Cyberzone 3`;
+  else if (get("_cyberZone2Turns") < 9) return $location`Cyberzone 2`;
+  return $location`Cyberzone 1`;
+}
+
+export function canScreech(): boolean {
+  if (
+    !have($familiar`Patriotic Eagle`) ||
+    excludedFamiliars.includes($familiar`Patriotic Eagle`) ||
+    get("instant_skipPatrioticScreech", false)
+  )
+    return false;
+  const screechTurns = get("banishedPhyla").match(/Patriotic Screech:(\d+)/)?.[1];
+  if (screechTurns) return toInt(screechTurns) <= myTurncount();
+  return true;
 }

@@ -86,11 +86,15 @@ import { mapMonster } from "libram/dist/resources/2020/Cartography";
 import { chooseQuest, rufusTarget } from "libram/dist/resources/2023/ClosedCircuitPayphone";
 import Macro, { haveFreeBanish } from "../combat";
 import { Quest } from "../engine/task";
+import { chooseFamiliar } from "../familiars";
 import {
   abstractionXpEffect,
   abstractionXpItem,
   bestShadowRift,
   canPull,
+  canScreech,
+  cyberRealmTurnsAvailable,
+  cyberRealmZone,
   generalStoreXpEffect,
   getSynthColdBuff,
   getSynthExpBuff,
@@ -113,7 +117,7 @@ import {
   useCenser,
   useParkaSpit,
   wishFor,
-  xpWishEffect,
+  xpWishEffect
 } from "../lib";
 import { baseOutfit, garbageShirt, unbreakableUmbrella } from "../outfit";
 import { forbiddenEffects } from "../resources";
@@ -578,8 +582,13 @@ export const LevelingQuest: Quest = {
       completed: () =>
         !have($item`bat wings`) ||
         get("_batWingsRestUsed") >= 11 ||
-        myMp() >= Math.min(200, myMaxmp() * 0.5),
-      do: () => useSkill($skill`Rest upside down`),
+        myMp() >= Math.min(200, myMaxmp()),
+      do: (): void => {
+        equip($slot`back`, $item`bat wings`);
+        if (myMp() < Math.min(200, myMaxmp())) {
+          useSkill($skill`Rest upside down`);
+        }
+      },
       limit: { tries: 11 },
     },
     {
@@ -695,6 +704,16 @@ export const LevelingQuest: Quest = {
           have($skill`Double-Fisted Skull Smashing`)
         )
           tryAcquiringEffect($effect`Rainbow Vaccine`);
+
+        if (
+          have($item`server room key`) &&
+          !forbiddenEffects.includes($effect`Cyber Resist x2000`)
+        ) {
+          if (!have($item`Synapse Blaster`)) {
+            buy($item`Synapse Blaster`, 1);
+          }
+          tryAcquiringEffect($effect`Cyber Resist x2000`);
+        }
 
         // Grab Bembershoots
         // const bembershootQty = get("instant_skipBembershootForJacket", false) ? 2 : 3;
@@ -987,10 +1006,8 @@ export const LevelingQuest: Quest = {
     //       if (myMeat() >= 250) buy($item`red rocket`, 1);
     //     }
     //   },
-    //   completed: () => have($effect`Everything Looks Blue`),
-    //   // || haveCBBIngredients(false),
-    //   do: $location`The Dire Warren`,
-    //   // do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
+    //   completed: () => have($effect`Everything Looks Blue`) || haveCBBIngredients(false),
+    //   do: powerlevelingLocation(), // if your powerleveling location is the NEP you don't immediately get the MP regen
     //   combat: new CombatStrategy().macro(
     //     Macro.trySkill($skill`Curse of Weaksauce`)
     //       .tryItem($item`blue rocket`)
@@ -1022,20 +1039,80 @@ export const LevelingQuest: Quest = {
     //   completed: () =>
     //     powerlevelingLocation() !== $location`The Neverending Party` ||
     //     haveEffect($effect`Glowing Blue`) !== 10 ||
-    //     myMp() >= 500,
-    //   // || haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
-    //   do: $location`The Dire Warren`,
+    //     myMp() >= 500 ||
+    //     haveCBBIngredients(false), // But we can't benefit from Blue Rocket if we are only doing free fights
+    //   do: () => (canScreech() ? $location`Noob Cave` : $location`The Dire Warren`), // Use a non-wanderer zone unless we need to screech
     //   outfit: () => ({
     //     ...baseOutfit(false),
+    //     familiar:
+    //       canScreech() && cyberRealmTurnsAvailable() > 0
+    //         ? $familiar`Patriotic Eagle`
+    //         : chooseFamiliar(false),
     //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
     //   }),
-    //   combat: new CombatStrategy().macro(Macro.attack().repeat()),
+    //   combat: new CombatStrategy().macro(
+    //     Macro.if_("monstername crate", Macro.trySkill($skill`%fn, Release the Patriotic Screech!`))
+    //       .attack()
+    //       .repeat(),
+    //   ),
     //   post: (): void => {
     //     sendAutumnaton();
     //     sellMiscellaneousItems();
     //   },
     //   limit: { tries: 1 },
     // },
+    {
+      name: "Get Rufus Quest",
+      completed: () => get("_shadowAffinityToday") || !have($item`closed-circuit pay phone`),
+      do: (): void => {
+        chooseQuest(() => 2);
+        if (holiday().includes("April Fool's Day")) visitUrl("questlog.php?which=7");
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Shadow Rift",
+      prepare: (): void => {
+        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+        unbreakableUmbrella();
+        restoreMp(50);
+        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+          if (myMeat() >= 250) buy($item`red rocket`, 1);
+        }
+
+        if (
+          myClass() === $class`Pastamancer` &&
+          have($item`Sept-Ember Censer`) &&
+          have($item`Daylight Shavings Helmet`) &&
+          get("lastBeardBuff") === 0 && // We have not gotten the beard buff yet
+          !get("instant_saveEmbers", false) &&
+          !have($item`bembershoot`) // We have not used the mouthwash yet
+        )
+          equip($slot`hat`, $item`Daylight Shavings Helmet`); // Grab Grizzly Beard for mouthwash
+      },
+      completed: () =>
+        have($item`Rufus's shadow lodestone`) ||
+        (!have($effect`Shadow Affinity`) && get("encountersUntilSRChoice") !== 0) ||
+        !have($item`closed-circuit pay phone`),
+      do: bestShadowRift(),
+      combat: new CombatStrategy().macro(
+        Macro.tryItem($item`red rocket`)
+          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+          .default(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+      }),
+      post: (): void => {
+        if (have(rufusTarget() as Item)) {
+          withChoice(1498, 1, () => use($item`closed-circuit pay phone`));
+        }
+        sendAutumnaton();
+        sellMiscellaneousItems();
+      },
+      limit: { tries: 12 },
+    },
     {
       name: "Use Reagent Booster",
       completed: () =>
@@ -1092,10 +1169,16 @@ export const LevelingQuest: Quest = {
       completed: () => get("_snojoFreeFights") >= 10 || !get("snojoAvailable"),
       do: $location`The X-32-F Combat Training Snowman`,
       combat: new CombatStrategy().macro(
-        Macro.trySkill($skill`Recall Facts: %phylum Circadian Rhythms`).default(),
+        Macro.trySkill($skill`%fn, Release the Patriotic Screech!`)
+          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+          .default(),
       ),
       outfit: () => ({
         ...baseOutfit(),
+        familiar:
+          canScreech() && cyberRealmTurnsAvailable() > 0
+            ? $familiar`Patriotic Eagle`
+            : chooseFamiliar(true),
         modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
       }),
       limit: { tries: 10 },
@@ -1104,6 +1187,37 @@ export const LevelingQuest: Quest = {
         sendAutumnaton();
         sellMiscellaneousItems();
       },
+    },
+    {
+      name: "CyberSpace Zone",
+      prepare: (): void => {
+        if (!have($item`datastick`))
+          visitUrl("place.php?whichplace=serverroom&action=serverroom_chipdrawer");
+        $effects`Honeypotted, Null Afternoon, Feeling Nervous, Scarysauce, Jalapeño Saucesphere`.forEach(
+          (e) => tryAcquiringEffect(e),
+        );
+      },
+      completed: () => cyberRealmTurnsAvailable() <= 0,
+      do: () => cyberRealmZone(),
+      combat: new CombatStrategy().macro(
+        Macro.if_("monstername hacker", Macro.default()).trySkillRepeat($skill`Throw Cyber Rock`),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`datastick`,
+        acc3: $items`PirateRealm eyepatch, FantasyRealm G. E. M., Personal Ventilation Unit`.filter(
+          have,
+        )?.[0],
+      }),
+      post: (): void => {
+        sendAutumnaton();
+        if (cyberRealmTurnsAvailable() <= 0) {
+          $effects`Feeling Nervous, Scarysauce, Jalapeño Saucesphere`.forEach((e) =>
+            cliExecute(`shrug ${e}`),
+          );
+        }
+      },
+      limit: { tries: 10 },
     },
     {
       name: "Flaming Leaflets",
@@ -1892,6 +2006,12 @@ export const LevelingQuest: Quest = {
     //   },
     //   limit: { tries: 1 },
     // },
+    {
+      name: "Cross Streams",
+      completed: () => get("_streamsCrossed") || !have($item`protonic accelerator pack`),
+      do: () => cliExecute("crossstreams"),
+      limit: { tries: 1 },
+    },
     {
       name: "Apriling Band Quad Tom Sandworms",
       completed: () => !have($item`Apriling band quad tom`) || get("_aprilBandTomUses") >= 3,

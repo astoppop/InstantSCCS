@@ -10,7 +10,7 @@ import {
   currentMcd,
   drink,
   equip,
-  familiarEquippedEquipment,
+  equippedAmount,
   getCampground,
   getWorkshed,
   haveEquipped,
@@ -79,7 +79,7 @@ import {
   sendAutumnaton,
   tryAcquiringEffect,
   useCenser,
-  useParkaSpit,
+  useParkaSpit
 } from "../lib";
 import { baseOutfit, unbreakableUmbrella } from "../outfit";
 import { excludedFamiliars } from "../resources";
@@ -145,7 +145,7 @@ export const RunStartQuest: Quest = {
     {
       name: "Set up Sweatsuit",
       ready: () => have($item`tiny stillsuit`),
-      completed: () => familiarEquippedEquipment(bestStillsuitFamiliar) === $item`tiny stillsuit`,
+      completed: () => equippedAmount($item`tiny stillsuit`, true) >= 1,
       do: (): void => {
         equip(bestStillsuitFamiliar, $item`tiny stillsuit`);
       },
@@ -245,12 +245,23 @@ export const RunStartQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Open McHugeLarge Duffel Bag",
+      completed: () => !have($item`McHugeLarge duffel bag`) || have($item`McHugeLarge left ski`),
+      do: () => cliExecute("inventory.php?action=skiduffel&pwd"),
+      limit: { tries: 1 },
+    },
+    {
       name: "Restore mp (Bat Wings)",
       completed: () =>
         !have($item`bat wings`) ||
         get("_batWingsRestUsed") >= 11 ||
         myMp() >= Math.min(200, myMaxmp()),
-      do: () => useSkill($skill`Rest upside down`),
+      do: (): void => {
+        equip($slot`back`, $item`bat wings`);
+        if (myMp() < Math.min(200, myMaxmp())) {
+          useSkill($skill`Rest upside down`);
+        }
+      },
       limit: { tries: 11 },
     },
     // {
@@ -508,6 +519,31 @@ export const RunStartQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "FantasyRealm G. E. M.",
+      ready: () => get("frAlways") || get("_frToday"),
+      completed: () => have($item`FantasyRealm G. E. M.`),
+      do: () => {
+        visitUrl("place.php?whichplace=realm_fantasy&action=fr_initcenter");
+        runChoice(-1);
+      },
+      choices: { 1280: 1 },
+      limit: { tries: 1 },
+    },
+    {
+      name: "PirateRealm eyepatch",
+      ready: () => get("prAlways") || get("_prToday"),
+      completed: () => have($item`PirateRealm eyepatch`),
+      do: () => visitUrl("place.php?whichplace=realm_pirate&action=pr_port"),
+      limit: { tries: 1 },
+    },
+    {
+      name: "Personal Ventilation Unit",
+      ready: () => get("spookyAirportAlways") || get("_spookyAirportToday"),
+      completed: () => have($item`Personal Ventilation Unit`),
+      do: $location`The Secret Government Laboratory`,
+      limit: { tries: 1 },
+    },
+    {
       name: "Configure Trainset",
       completed: () =>
         !have($item`model train set`) ||
@@ -603,7 +639,7 @@ export const RunStartQuest: Quest = {
         // (to consider: but it isn't very useful if we already have other copyable sources available [e.g. kramco])
         const canUseMimic =
           have($familiar`Chest Mimic`) &&
-          !excludedFamiliars.includes(toInt($familiar`Chest Mimic`)) &&
+          !excludedFamiliars.includes($familiar`Chest Mimic`) &&
           !get("instant_saveMimicEggs", false);
         const canUseCopier =
           (have($item`backup camera`) && get("instant_saveBackups", 0) < 11) ||
@@ -650,7 +686,7 @@ export const RunStartQuest: Quest = {
         } else {
           if (
             have($familiar`Chest Mimic`) &&
-            !excludedFamiliars.includes(toInt($familiar`Chest Mimic`)) &&
+            !excludedFamiliars.includes($familiar`Chest Mimic`) &&
             !get("instant_saveMimicEggs", false)
           ) {
             useFamiliar($familiar`Chest Mimic`);
@@ -986,7 +1022,8 @@ export const RunStartQuest: Quest = {
         acc2: have($item`spring shoes`) ? $item`spring shoes` : undefined,
       }),
       post: (): void => {
-        set("_instant_pledgeUsed", true);
+        if (get("lastEncounter") !== "Our Bakery in the Middle of Our Street")
+          set("_instant_pledgeUsed", true);
       },
       limit: { tries: 2 },
     },
