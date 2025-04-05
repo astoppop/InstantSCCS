@@ -369,6 +369,16 @@ export const BoozeDropQuest: Quest = {
       name: "Consult Fortune Teller",
       completed: () => get("_clanFortuneBuffUsed") || get("instant_saveFortuneTeller", false),
       do: () => cliExecute(`fortune buff item`),
+    },
+    {
+      name: "Wet Shower Radio",
+      completed: () =>
+        !have($item`April Shower Thoughts shield`) ||
+        itemAmount($item`glob of wet paper`) - 1 < get("instant_saveShowerGlobs", 0) ||
+        have($item`wet shower radio`),
+      do: () => {
+        buy($coinmaster`Using your Shower Thoughts`, 1, $item`wet shower radio`);
+      },
       limit: { tries: 1 },
     },
     {
@@ -386,6 +396,7 @@ export const BoozeDropQuest: Quest = {
           $effect`Incredibly Well Lit`,
           $effect`items.enh`,
           $effect`Joyful Resolve`,
+          $effect`Lubricating Sauce`,
           $effect`One Very Clear Eye`,
           $effect`Pork Barrel`,
           $effect`Nearly All-Natural`,

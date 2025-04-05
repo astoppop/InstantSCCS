@@ -111,6 +111,7 @@ export const FamiliarWeightQuest: Quest = {
           $effect`Robot Friends`,
           $effect`Shortly Stacked`,
           $effect`Party Soundtrack`,
+          $effect`Thoughtful Empathy`,
         ];
         usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
         handleCustomPulls("instant_famTestPulls", famTestMaximizerString);
