@@ -37,6 +37,7 @@ import {
   handleCustomPulls,
   logTestSetup,
   tryAcquiringEffect,
+  tryAcquiringEffects,
 } from "../lib";
 import { avoidDaylightShavingsHelm, sugarItemsAboutToBreak } from "../outfit";
 
@@ -101,6 +102,7 @@ export const FamiliarWeightQuest: Quest = {
           $effect`Billiards Belligerence`,
           $effect`Blood Bond`,
           $effect`Boxing Day Glow`,
+          $effect`Chorale of Companionship`,
           $effect`Do I Know You From Somewhere?`,
           $effect`Empathy`,
           // $effect`Fidoxene`,
@@ -113,7 +115,7 @@ export const FamiliarWeightQuest: Quest = {
           $effect`Party Soundtrack`,
           $effect`Thoughtful Empathy`,
         ];
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
+        tryAcquiringEffects(usefulEffects, true);
         handleCustomPulls("instant_famTestPulls", famTestMaximizerString);
 
         if (have($item`love song of icy revenge`))

@@ -56,6 +56,8 @@ import {
   motherSlimeClan,
   startingClan,
   tryAcquiringEffect,
+  tryAcquiringEffects,
+  tryAcquiringOdeToBooze,
   wishFor,
 } from "../lib";
 import { sugarItemsAboutToBreak } from "../outfit";
@@ -77,7 +79,7 @@ export const WeaponDamageQuest: Quest = {
         myMeat() < 500 ||
         get("instant_saveSockdollager", false),
       do: (): void => {
-        tryAcquiringEffect($effect`Ode to Booze`);
+        tryAcquiringOdeToBooze();
         visitUrl(`clan_viplounge.php?preaction=speakeasydrink&drink=6&pwd=${+myHash()}`); // Sockdollager
       },
       limit: { tries: 1 },
@@ -306,7 +308,7 @@ export const WeaponDamageQuest: Quest = {
           $effect`Wasabi With You`,
           $effect`Weapon of Mass Destruction`,
         ];
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
+        tryAcquiringEffects(usefulEffects, true);
         handleCustomPulls("instant_weaponTestPulls", wpnTestMaximizerString);
 
         if (

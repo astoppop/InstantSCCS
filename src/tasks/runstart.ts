@@ -91,7 +91,7 @@ import {
   mainStatMaximizerStr,
   mainStatStr,
   sendAutumnaton,
-  tryAcquiringEffect,
+  tryAcquiringOdeToBooze,
   useCenser,
   useParkaSpit
 } from "../lib";
@@ -586,8 +586,8 @@ export const RunStartQuest: Quest = {
           $effect`Tired Muscles`,
           ...$effects`Gym Bros, Well Stimulated, Wasting Time`.sort(
             (a, b) =>
-              numericModifier(a, `${mainStatStr.toString()} Percent`) -
-              numericModifier(b, `${mainStatStr.toString()} Percent`),
+              numericModifier(a, `${mainStatStr} Percent`) -
+              numericModifier(b, `${mainStatStr} Percent`),
           ),
           $effect`You Might Have Gotten Wet`,
           $effect`Counter Intelligence`,
@@ -1048,7 +1048,7 @@ export const RunStartQuest: Quest = {
         if (!have($effect`Lucky!`)) use($item`11-leaf clover`);
         if (!have($item`distilled fortified wine`)) adv1($location`The Sleazy Back Alley`, -1);
         while (have($item`distilled fortified wine`) && myInebriety() < 3) {
-          tryAcquiringEffect($effect`Ode to Booze`);
+          tryAcquiringOdeToBooze();
           drink($item`distilled fortified wine`, 1);
         }
       },

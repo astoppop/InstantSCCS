@@ -2,6 +2,7 @@ import { CombatStrategy } from "grimoire-kolmafia";
 import {
   buy,
   cliExecute,
+  create,
   drink,
   Effect,
   elementalResistance,
@@ -14,7 +15,9 @@ import {
   myClass,
   myHp,
   myInebriety,
+  myLevel,
   myMaxhp,
+  myMeat,
   myThrall,
   numericModifier,
   outfit,
@@ -51,6 +54,8 @@ import {
   motherSlimeClan,
   startingClan,
   tryAcquiringEffect,
+  tryAcquiringEffects,
+  tryAcquiringOdeToBooze,
 } from "../lib";
 import Macro, { haveFreeBanish, haveMotherSlimeBanish } from "../combat";
 import { sugarItemsAboutToBreak } from "../outfit";
@@ -64,6 +69,41 @@ export const SpellDamageQuest: Quest = {
   name: "Spell Damage",
   completed: () => CommunityService.SpellDamage.isDone(),
   tasks: [
+    {
+      name: "Concentrated Cordial of Concentration",
+      completed: () =>
+        myClass() !== $class`Accordion Thief` || // Must be a Accordion Thief for guild infiltration
+        myLevel() < 9 || // Need at least L9 to access other guilds
+        !have($item`tearaway pants`) || // Need tearaway pants for free access to Moxie guild
+        !have($skill`Superhuman Cocktailcrafting`) || // Need to upgrade soda water into tonic water
+        (get("reagentSummons") !== 0 &&
+          !have($item`scrumptious reagent`) &&
+          !have($item`scrumdiddlyumptious solution`)) || // Need a spare reagent
+        (myMeat() < 1070 &&
+          !have($item`scrumdiddlyumptious solution`) &&
+          !have($item`delectable catalyst`)) || // Need enough meat to purchase a delectable catalyst
+        have($item`concentrated cordial of concentration`),
+      do: (): void => {
+        visitUrl("guild.php?place=challenge"); // Ensure free access to Moxie guild
+        if (get("reagentSummons") === 0) useSkill($skill`Advanced Saucecrafting`, 1);
+        create($item`concentrated cordial of concentration`);
+      },
+      outfit: {
+        pants: $item`tearaway pants`,
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Cordial of Concentration",
+      completed: () =>
+        (get("reagentSummons") !== 0 && !have($item`scrumptious reagent`)) || // Need a spare reagent
+        have($item`cordial of concentration`),
+      do: (): void => {
+        if (get("reagentSummons") === 0) useSkill($skill`Advanced Saucecrafting`, 1);
+        create($item`cordial of concentration`);
+      },
+      limit: { tries: 1 },
+    },
     {
       name: "Simmer",
       completed: () => have($effect`Simmering`) || !have($skill`Simmer`),
@@ -172,8 +212,7 @@ export const SpellDamageQuest: Quest = {
         forbiddenEffects.includes($effect`Visions of the Deep Dark Deeps`) ||
         !have($skill`Deep Dark Visions`) ||
         triedDeepDark,
-      prepare: () =>
-        $effects`Astral Shell, Elemental Saucesphere`.forEach((ef) => tryAcquiringEffect(ef)),
+      prepare: () => tryAcquiringEffects($effects`Astral Shell, Elemental Saucesphere`),
       do: (): void => {
         triedDeepDark = true;
         const resist = 1 - elementalResistance($element`spooky`) / 100;
@@ -216,8 +255,11 @@ export const SpellDamageQuest: Quest = {
           $effect`AAA-Charged`,
           $effect`Arched Eyebrow of the Archmage`,
           $effect`Carol of the Hells`,
+          $effect`Concentrated Concentration`,
+          $effect`Concentration`,
           $effect`Cowrruption`,
           $effect`Destructive Resolve`,
+          $effect`Elron's Explosive Etude`,
           $effect`Grumpy and Ornery`,
           $effect`Imported Strength`,
           $effect`Jackasses' Symphony of Destruction`,
@@ -230,7 +272,7 @@ export const SpellDamageQuest: Quest = {
           $effect`Warlock, Warstock, and Warbarrel`,
           $effect`We're All Made of Starfish`,
         ];
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
+        tryAcquiringEffects(usefulEffects, true);
         handleCustomPulls("instant_spellTestPulls", spellTestMaximizerString);
 
         const wines = $items`Sacramento wine, distilled fortified wine`;
@@ -239,7 +281,7 @@ export const SpellDamageQuest: Quest = {
           myInebriety() < inebrietyLimit() &&
           wines.some((booze) => have(booze))
         ) {
-          tryAcquiringEffect($effect`Ode to Booze`);
+          tryAcquiringOdeToBooze();
           drink(wines.filter((booze) => have(booze))[0], 1);
         }
 

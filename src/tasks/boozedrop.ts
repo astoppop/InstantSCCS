@@ -49,7 +49,13 @@ import {
 } from "libram";
 import Macro, { haveFreeBanish } from "../combat";
 import { Quest } from "../engine/task";
-import { handleCustomPulls, logTestSetup, tryAcquiringEffect, wishFor } from "../lib";
+import {
+  handleCustomPulls,
+  logTestSetup,
+  tryAcquiringEffects,
+  tryAcquiringOdeToBooze,
+  wishFor,
+} from "../lib";
 import { baseOutfit } from "../outfit";
 import { forbiddenEffects } from "../resources";
 
@@ -248,7 +254,7 @@ export const BoozeDropQuest: Quest = {
         get("instant_saveSacramentoWine", false),
       do: (): void => {
         if (myInebriety() < inebrietyLimit()) {
-          tryAcquiringEffect($effect`Ode to Booze`);
+          tryAcquiringOdeToBooze();
           drink($item`Sacramento wine`, 1);
           uneffect($effect`Ode to Booze`);
         }
@@ -274,7 +280,7 @@ export const BoozeDropQuest: Quest = {
         if (!have($item`bottle of Cabernet Sauvignon`))
           useSkill($skill`Aug. 31st: Cabernet Sauvignon  Day!`);
         if (myInebriety() + 3 <= inebrietyLimit()) {
-          tryAcquiringEffect($effect`Ode to Booze`);
+          tryAcquiringOdeToBooze();
           drink($item`bottle of Cabernet Sauvignon`);
           uneffect($effect`Ode to Booze`);
         }
@@ -400,12 +406,13 @@ export const BoozeDropQuest: Quest = {
           $effect`One Very Clear Eye`,
           $effect`Pork Barrel`,
           $effect`Nearly All-Natural`,
+          $effect`The Ballad of Richie Thingfinder`,
           $effect`The Spirit of Taking`,
           $effect`Singer's Faithful Ocelot`,
           $effect`Steely-Eyed Squint`,
           $effect`Uncucumbered`,
         ];
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
+        tryAcquiringEffects(usefulEffects, true);
 
         if (have($familiar`Trick-or-Treating Tot`) && have($item`li'l ninja costume`)) {
           useFamiliar($familiar`Trick-or-Treating Tot`);

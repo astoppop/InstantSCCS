@@ -22,11 +22,17 @@ import {
   have,
   uneffect,
 } from "libram";
-import { handleCustomPulls, logTestSetup, tryAcquiringEffect, wishFor } from "../lib";
+import {
+  handleCustomPulls,
+  logTestSetup,
+  tryAcquiringEffect,
+  tryAcquiringEffects,
+  wishFor,
+} from "../lib";
 import { CombatStrategy } from "grimoire-kolmafia";
 import Macro from "../combat";
 
-const comTestMaximizerString = `-combat`;
+const comTestMaximizerString = `-raw combat rate`;
 
 export const NoncombatQuest: Quest = {
   name: "Noncombat",
@@ -81,7 +87,7 @@ export const NoncombatQuest: Quest = {
           have($item`Kremlin's Greatest Briefcase`) &&
           !get("instant_saveKGBClicks", false)
         )
-          cliExecute("Briefcase e -combat");
+          cliExecute(`Briefcase e ${comTestMaximizerString}`);
         const usefulEffects: Effect[] = [
           $effect`A Rose by Any Other Material`,
           $effect`Feeling Lonely`,
@@ -101,9 +107,9 @@ export const NoncombatQuest: Quest = {
           $effect`Empathy`,
           $effect`Puzzle Champ`,
         ];
-        usefulEffects.forEach((ef) => tryAcquiringEffect(ef, true));
+        tryAcquiringEffects(usefulEffects, true);
         if (!handleCustomPulls("instant_comTestPulls", comTestMaximizerString)) {
-          cliExecute("maximize -combat"); // To avoid maximizer bug, we invoke this once more
+          cliExecute(`maximize ${comTestMaximizerString}`); // To avoid maximizer bug, we invoke this once more
         }
 
         if (
