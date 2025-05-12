@@ -20,7 +20,6 @@ import {
   Item,
   itemAmount,
   Location,
-  Monster,
   mpCost,
   myBasestat,
   myClass,
@@ -60,7 +59,6 @@ import {
   $items,
   $location,
   $monster,
-  $monsters,
   $skill,
   $slot,
   $stat,
@@ -93,12 +91,15 @@ import {
   bestShadowRift,
   canPull,
   canScreech,
+  crystalBallFreeFightLocation,
   cyberRealmTurnsAvailable,
   cyberRealmZone,
+  freeFightMonsters,
   generalStoreXpEffect,
   getSynthColdBuff,
   getSynthExpBuff,
   getValidComplexCandyPairs,
+  habitatCastsLeft,
   mainStat,
   mainStatMaximizerStr,
   mainStatStr,
@@ -160,6 +161,8 @@ const muscleList: Effect[] = [
   $effect`Rage of the Reindeer`,
   // Weapon dmg
   $effect`Carol of the Bulls`,
+  // Fortune teller buff
+  $effect`Gunther Than Thou`,
 ];
 
 const mysticalityList: Effect[] = [
@@ -174,6 +177,8 @@ const mysticalityList: Effect[] = [
   $effect`Sparkling Consciousness`,
   // Spell dmg
   $effect`Carol of the Hells`,
+  // Fortune teller buff
+  $effect`Everybody Calls Him Gorgon`,
 ];
 
 const moxieList: Effect[] = [
@@ -187,6 +192,8 @@ const moxieList: Effect[] = [
   $effect`Sneaky Serpentine Subtlety`,
   // Weapon dmg
   $effect`Carol of the Bulls`,
+  // Fortune teller buff
+  $effect`They Call Him Shifty Because...`,
 ];
 
 const statEffects =
@@ -897,12 +904,6 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    // {
-    //   name: "Consult Fortune Teller",
-    //   completed: () => get("_clanFortuneBuffUsed") || get("instant_saveFortuneTeller", false),
-    //   do: () => cliExecute(`fortune buff ${mainStatMaximizerStr}`),
-    //   limit: { tries: 1 },
-    // },
     {
       name: "Use General Store Statboost",
       completed: () => have(generalStoreXpEffect),
@@ -1082,7 +1083,7 @@ export const LevelingQuest: Quest = {
     //       canScreech() && cyberRealmTurnsAvailable() > 0
     //         ? $familiar`Patriotic Eagle`
     //         : chooseFamiliar(false),
-    //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
+    //     modifier: `0.25 ${mainStatMaximizerStr}, 0.33 ML, -equip miniature crystal ball, -equip tinsel tights, -equip wad of used tape, -equip Kramco Sausage-o-Matic™`,
     //   }),
     //   combat: new CombatStrategy().macro(
     //     Macro.if_("monstername crate", Macro.trySkill($skill`%fn, Release the Patriotic Screech!`))
@@ -1252,6 +1253,20 @@ export const LevelingQuest: Quest = {
         }
       },
       limit: { tries: 10 },
+    },
+    {
+      name: "Crystal Ball",
+      completed: () =>
+        get("_monsterHabitatsFightsLeft") > 0 || // habitats have higher priority
+        crystalBallFreeFightLocation() === Location.none ||
+        !have($item`miniature crystal ball`),
+      do: () => crystalBallFreeFightLocation(),
+      limit: { tries: 10 },
+      combat: new CombatStrategy().macro(Macro.default()),
+      outfit: () => ({
+        ...baseOutfit(),
+        famequip: $item`miniature crystal ball`,
+      }),
     },
     {
       name: "Flaming Leaflets",
@@ -1524,7 +1539,7 @@ export const LevelingQuest: Quest = {
     {
       name: "Monster Habitats",
       ready: () =>
-        get("_monsterHabitatsFightsLeft") > 1 &&
+        get("_monsterHabitatsFightsLeft") > (habitatCastsLeft() > 0 ? 1 : 0) &&
         (haveFreeBanish() ||
           Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
       prepare: (): void => {
@@ -1534,19 +1549,27 @@ export const LevelingQuest: Quest = {
         tryAcquiringEffects(usefulEffects);
         restoreMp(50);
       },
-      completed: () => get("_monsterHabitatsFightsLeft") <= 1,
+      completed: () => get("_monsterHabitatsFightsLeft") <= (habitatCastsLeft() > 0 ? 1 : 0),
       do: $location`The Dire Warren`,
-      combat: new CombatStrategy().macro(() =>
-        Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
-          .trySkill($skill`Bowl Sideways`)
-          .default(useCinch),
-      ),
-      outfit: baseOutfit,
+      combat: new CombatStrategy().macro(() => {
+        return Macro.if_($monster`fluffy bunny`, Macro.banish().abort()).trySkill($skill`Bowl Sideways`).default(useCinch);
+      }),
+      outfit: () => ({
+        ...baseOutfit,
+        ...(Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)
+          ? {}
+          : {
+              offhand: $item`latte lovers member's mug`,
+              acc1: $item`Kremlin's Greatest Briefcase`,
+              acc2: $item`Lil' Doctor™ bag`,
+              famequip: $item.none,
+            }),
+      }),
       post: (): void => {
         sendAutumnaton();
         sellMiscellaneousItems();
       },
-      limit: { tries: 13 },
+      limit: { tries: 14 },
     },
     {
       name: "Monster Habitats (Re-application)",
@@ -1563,18 +1586,28 @@ export const LevelingQuest: Quest = {
       },
       completed: () => get("_monsterHabitatsFightsLeft") === 0,
       do: $location`The Dire Warren`,
-      combat: new CombatStrategy().macro(() =>
-        Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
+      combat: new CombatStrategy().macro(() => {
+        return Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
           .trySkill($skill`Recall Facts: Monster Habitats`)
           .trySkill($skill`Bowl Sideways`)
-          .default(useCinch),
-      ),
-      outfit: baseOutfit,
+          .default(useCinch);
+      }),
+      outfit: () => ({
+        ...baseOutfit,
+        ...(Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)
+          ? {}
+          : {
+              offhand: $item`latte lovers member's mug`,
+              acc1: $item`Kremlin's Greatest Briefcase`,
+              acc2: $item`Lil' Doctor™ bag`,
+              famequip: $item.none,
+            }),
+      }),
       post: (): void => {
         sendAutumnaton();
         sellMiscellaneousItems();
       },
-      limit: { tries: 4 },
+      limit: { tries: 3 },
     },
     {
       name: "Backups",
@@ -1597,6 +1630,7 @@ export const LevelingQuest: Quest = {
       outfit: () => ({
         ...baseOutfit(),
         acc3: $item`backup camera`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball`,
       }),
       post: (): void => {
         if (!freeFightMonsters.includes(get("lastCopyableMonster") ?? $monster.none))
@@ -1780,8 +1814,7 @@ export const LevelingQuest: Quest = {
       combat: new CombatStrategy().macro(() =>
         Macro.externalIf(
           get("_monsterHabitatsFightsLeft") <= 1 &&
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-            have($skill`Recall Facts: Monster Habitats`) &&
+            habitatCastsLeft() > 0 &&
             (haveFreeBanish() ||
               Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
           Macro.trySkill($skill`Recall Facts: Monster Habitats`),
@@ -1922,8 +1955,7 @@ export const LevelingQuest: Quest = {
       combat: new CombatStrategy().macro(() =>
         Macro.externalIf(
           get("_monsterHabitatsFightsLeft") <= 1 &&
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-            have($skill`Recall Facts: Monster Habitats`) &&
+            habitatCastsLeft() > 0 &&
             (haveFreeBanish() ||
               Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
           Macro.trySkill($skill`Recall Facts: Monster Habitats`),
@@ -2190,8 +2222,7 @@ export const LevelingQuest: Quest = {
       combat: new CombatStrategy().macro(() =>
         Macro.externalIf(
           get("_monsterHabitatsFightsLeft") <= 1 &&
-            get("_monsterHabitatsRecalled") < 3 - get("instant_saveMonsterHabitats", 0) &&
-            have($skill`Recall Facts: Monster Habitats`) &&
+            habitatCastsLeft() > 0 &&
             (haveFreeBanish() ||
               Array.from(getBanishedMonsters().values()).includes($monster`fluffy bunny`)),
           Macro.trySkill($skill`Recall Facts: Monster Habitats`),
