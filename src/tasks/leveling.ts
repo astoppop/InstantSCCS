@@ -123,7 +123,7 @@ import {
   useCenser,
   useParkaSpit,
   wishFor,
-  xpWishEffect
+  xpWishEffect,
 } from "../lib";
 import { baseOutfit, garbageShirt, unbreakableUmbrella } from "../outfit";
 import { forbiddenEffects } from "../resources";
@@ -635,13 +635,16 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Map for BOFA Cold Res",
+      prepare: (): void => {
+        if (haveEquipped($item`miniature crystal ball`)) equip($slot`familiar`, $item.none);
+        PeridotOfPeril.setChoice($monster`sleeping Knob Goblin Guard`);
+      },
       completed: () =>
         myClass() != $class`Seal Clubber` ||
         !have($skill`Map the Monsters`) ||
         get("_monstersMapped") >= 3 ||
         have($effect`Imagining Guts`),
-      do: () =>
-        mapMonster($location`The Outskirts of Cobb's Knob`, $monster`sleeping Knob Goblin Guard`),
+      do: () => $location`The Outskirts of Cobb's Knob`,
       combat: new CombatStrategy().macro(
         Macro.trySkill($skill`Darts: Aim for the Bullseye`)
           .trySkill($skill`Chest X-Ray`)
@@ -655,6 +658,7 @@ export const LevelingQuest: Quest = {
             ? $item`Everfull Dart Holster`
             : undefined,
         acc2: $item`Lil' Doctor™ bag`,
+        acc3: $item`Peridot of Peril`,
         modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
       }),
       limit: { tries: 1 },
@@ -781,21 +785,20 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Get BOFA Pocket Wishes",
+      prepare: (): void => {
+        if (haveEquipped($item`miniature crystal ball`)) equip($slot`familiar`, $item.none);
+        PeridotOfPeril.setChoice($monster`big creepy spider`);
+      },
       completed: () =>
         myClass() != $class`Seal Clubber` ||
         !have($item`Fourth of May Cosplay Saber`) ||
-        get("_saberForceUses") >= 1 ||
-        !have($skill`Map the Monsters`) ||
-        get("_monstersMapped") >= 3 ||
-        get("_bookOfFactsWishes") > 0,
-      do: () => {
-        mapMonster($location`The Sleazy Back Alley`, $monster`big creepy spider`);
-        visitUrl("main.php");
-      },
+        get("_saberForceUses") >= 1,
+      do: () => $location`The Sleazy Back Alley`,
       combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
       outfit: () => ({
         ...baseOutfit(false),
         weapon: $item`Fourth of May Cosplay Saber`,
+        acc3: $item`Peridot of Peril`,
       }),
       post: (): void => {
         visitUrl("main.php");
@@ -1594,7 +1597,9 @@ export const LevelingQuest: Quest = {
       completed: () => get("_monsterHabitatsFightsLeft") <= (habitatCastsLeft() > 0 ? 1 : 0),
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(() => {
-        return Macro.if_($monster`fluffy bunny`, Macro.banish().abort()).trySkill($skill`Bowl Sideways`).default(useCinch);
+        return Macro.if_($monster`fluffy bunny`, Macro.banish().abort())
+          .trySkill($skill`Bowl Sideways`)
+          .default(useCinch);
       }),
       outfit: () => ({
         ...baseOutfit,
