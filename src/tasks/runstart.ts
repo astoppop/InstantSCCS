@@ -36,7 +36,7 @@ import {
   use,
   useFamiliar,
   useSkill,
-  visitUrl
+  visitUrl,
 } from "kolmafia";
 import {
   $coinmaster,
@@ -94,7 +94,7 @@ import {
   sendAutumnaton,
   tryAcquiringOdeToBooze,
   useCenser,
-  useParkaSpit
+  useParkaSpit,
 } from "../lib";
 import { baseOutfit, unbreakableUmbrella } from "../outfit";
 import { excludedFamiliars } from "../resources";
@@ -1145,6 +1145,7 @@ export const RunStartQuest: Quest = {
         familiar: $familiar`Patriotic Eagle`,
         offhand: have($item`Roman Candelabra`) ? $item`Roman Candelabra` : undefined,
         acc2: have($item`spring shoes`) ? $item`spring shoes` : undefined,
+        avoid: [$item`Peridot of Peril`],
       }),
       post: (): void => {
         if (get("lastEncounter") !== "Our Bakery in the Middle of Our Street")
