@@ -778,7 +778,7 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
       outfit: {
         modifier: "cold res",
-        familiar: $familiar`Exotic Parrot`,
+        familiar: $familiar`Cooler Yeti`,
       },
       post: (): void => {
         if (have($effect`Scarysauce`)) cliExecute("shrug scarysauce");
