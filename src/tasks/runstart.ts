@@ -1149,7 +1149,7 @@ export const RunStartQuest: Quest = {
         have($item`Apriling band saxophone`) ||
         have($item`11-leaf clover`) ||
         have($effect`Lucky!`),
-      completed: () => myInebriety() >= 1 || get("instant_skipDistilledFortifiedWine", false),
+      completed: () => myInebriety() >= 3 || get("instant_skipDistilledFortifiedWine", false),
       do: (): void => {
         if (
           haveHeartstone() &&
