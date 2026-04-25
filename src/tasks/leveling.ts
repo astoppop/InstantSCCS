@@ -1269,7 +1269,7 @@ export const LevelingQuest: Quest = {
       }),
     },
     {
-      name: "Mimic Sausage Goblins",
+      name: "Mimic Black Crayon Frat Orcs",
       ready: () =>
         (have($item`legendary seal-clubbing club`) && !have($item`Kramco Sausage-o-Matic™`)) ||
         completedPowerleveling(),
@@ -1297,9 +1297,9 @@ export const LevelingQuest: Quest = {
             .fill(0)
             .forEach(() => AprilingBandHelmet.play($item`Apriling band piccolo`));
         }
-        ChestMimic.receive($monster`sausage goblin`);
+        ChestMimic.receive($monster`Black Crayon Frat Orc`);
         useFamiliar(currentFamiliar);
-        ChestMimic.differentiate($monster`sausage goblin`);
+        ChestMimic.differentiate($monster`Black Crayon Frat Orc`);
       },
       combat: new CombatStrategy().macro(() =>
         Macro.externalIf(

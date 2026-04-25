@@ -22,7 +22,7 @@ import {
 } from "libram";
 import { chooseRift } from "libram/dist/resources/2023/ClosedCircuitPayphone";
 
-export const freeFightMonsters: Monster[] = $monsters`Witchess Bishop, Witchess King, Witchess Witch, sausage goblin, Eldritch Tentacle`;
+export const freeFightMonsters: Monster[] = $monsters`Witchess Bishop, Witchess King, Witchess Witch, sausage goblin, Eldritch Tentacle, Black Crayon Frat Orc`;
 // We want to consider all locations with 100% combat rate
 // but some locations like the Barroom Brawl provide free fights for the first X adventures in the zone
 // and we do not want to deplete the fights in that location
