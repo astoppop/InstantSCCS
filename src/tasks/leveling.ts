@@ -637,6 +637,51 @@ export const LevelingQuest: Quest = {
       },
     },
     {
+      name: "Get BOFA Pocket Wishes",
+      prepare: (): void => {
+        PeridotOfPeril.setChoice($monster`big creepy spider`);
+      },
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_saberForceUses") >= 1,
+      do: () => $location`The Sleazy Back Alley`,
+      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
+      outfit: () => ({
+        ...baseOutfit(false),
+        weapon: $item`Fourth of May Cosplay Saber`,
+        acc3: $item`Peridot of Peril`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Get BOFA Pocket Wishes (continued)",
+      after: ["Get BOFA Pocket Wishes"],
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($item`Fourth of May Cosplay Saber`) ||
+        get("_bookOfFactsWishes") >= 3,
+      do: () => $location`The Sleazy Back Alley`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
+      choices: { 1387: 2 },
+      limit: { tries: 4 },
+    },
+    {
       name: "Alice Army",
       completed: () => get("grimoire3Summons") > 0 || !have($skill`Summon Alice's Army Cards`),
       do: () => useSkill($skill`Summon Alice's Army Cards`),
