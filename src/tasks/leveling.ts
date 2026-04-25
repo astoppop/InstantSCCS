@@ -532,6 +532,26 @@ export const LevelingQuest: Quest = {
       do: () => prepareCodpiece("Cold Resistance"),
       limit: { tries: 1 },
     },
+
+    {
+      name: "Mayam Calendar (Leveling)",
+      completed: () =>
+        get("instant_saveMayamCalendar", false) ||
+        get("_mayamSymbolsUsed").includes("yam4") ||
+        !have($item`Mayam Calendar`),
+      do: (): void => {
+        useFamiliar($familiar`Chest Mimic`);
+        if (useCenser) {
+          MayamCalendar.submit(MayamCalendar.toCombinationString(["fur", "yam2", "wall", "yam4"]));
+        } else {
+          const sym1 = mainStat === $stat`Muscle` ? "sword" : "vessel";
+          const sym2 = mainStat === $stat`Mysticality` ? "lightning" : "meat";
+          const sym3 = mainStat === $stat`Moxie` ? "eyepatch" : "cheese";
+          MayamCalendar.submit(MayamCalendar.toCombinationString([sym1, sym2, sym3, "yam4"]));
+        }
+      },
+      limit: { tries: 1 },
+    },
     {
       name: "Sept-ember Mouthwash",
       ready: () =>
@@ -812,25 +832,6 @@ export const LevelingQuest: Quest = {
       },
       post: () => autosell($item`meat stack`, itemAmount($item`meat stack`)),
       limit: { tries: 23 },
-    },
-    {
-      name: "Mayam Calendar (Leveling)",
-      completed: () =>
-        get("instant_saveMayamCalendar", false) ||
-        get("_mayamSymbolsUsed").includes("yam4") ||
-        !have($item`Mayam Calendar`),
-      do: (): void => {
-        useFamiliar($familiar`Chest Mimic`);
-        if (useCenser) {
-          MayamCalendar.submit(MayamCalendar.toCombinationString(["fur", "yam2", "wall", "yam4"]));
-        } else {
-          const sym1 = mainStat === $stat`Muscle` ? "sword" : "vessel";
-          const sym2 = mainStat === $stat`Mysticality` ? "lightning" : "meat";
-          const sym3 = mainStat === $stat`Moxie` ? "eyepatch" : "cheese";
-          MayamCalendar.submit(MayamCalendar.toCombinationString([sym1, sym2, sym3, "yam4"]));
-        }
-      },
-      limit: { tries: 1 },
     },
     {
       name: "BoomBox Meat",
