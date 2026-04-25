@@ -26,6 +26,7 @@ import {
   myBasestat,
   myClass,
   myFamiliar,
+  myHash,
   myHp,
   myInebriety,
   myLevel,
