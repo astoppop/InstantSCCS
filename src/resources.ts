@@ -82,8 +82,8 @@ export const consumptionResources: Resource[] = [
   new Resource("instant_saveSacramentoWine", "Do not drink a Sacramento Wine for the item test"),
   new Resource(
     "instant_savePillkeeper",
-    "Do not acquire Hulkien, Rainbowolin and Fidoxene",
-    $effects`Hulkien, Rainbowolin, Fidoxene`,
+    "Do not acquire Hulkien and Fidoxene",
+    $effects`Hulkien, Fidoxene`,
   ),
   new Resource("instant_skipSynthExp", "Do not use synth for the Xp% buff"),
   new Resource("instant_skipSynthCold", "Do not use synth for the Cold Res buff"),
