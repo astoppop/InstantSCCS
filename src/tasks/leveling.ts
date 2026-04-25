@@ -338,29 +338,29 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Pull Daypass",
-      completed: () =>
-        powerlevelingLocation() !== $location`Uncle Gator's Country Fun-Time Liquid Waste Sluice` ||
-        get("stenchAirportAlways") ||
-        get("_stenchAirportToday") ||
-        have($item`Monodent of the Sea`),
-      do: (): void => {
-        if (storageAmount($item`one-day ticket to Dinseylandfill`) === 0) {
-          print(
-            "Uh oh! You do not seem to have a one-day ticket to Dinseylandfill in Hagnk's",
-            "red",
-          );
-          print(
-            "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
-            "red",
-          );
-        }
-        takeStorage($item`one-day ticket to Dinseylandfill`, 1);
-        use($item`one-day ticket to Dinseylandfill`, 1);
-      },
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Pull Daypass",
+    //   completed: () =>
+    //     powerlevelingLocation() !== $location`Uncle Gator's Country Fun-Time Liquid Waste Sluice` ||
+    //     get("stenchAirportAlways") ||
+    //     get("_stenchAirportToday") ||
+    //     have($item`Monodent of the Sea`),
+    //   do: (): void => {
+    //     if (storageAmount($item`one-day ticket to Dinseylandfill`) === 0) {
+    //       print(
+    //         "Uh oh! You do not seem to have a one-day ticket to Dinseylandfill in Hagnk's",
+    //         "red",
+    //       );
+    //       print(
+    //         "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
+    //         "red",
+    //       );
+    //     }
+    //     takeStorage($item`one-day ticket to Dinseylandfill`, 1);
+    //     use($item`one-day ticket to Dinseylandfill`, 1);
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Wish for XP% buff",
       // TODO: Make this completed if we've already wished twice with the paw (requires mafia tracking)
@@ -820,6 +820,7 @@ export const LevelingQuest: Quest = {
         get("_mayamSymbolsUsed").includes("yam4") ||
         !have($item`Mayam Calendar`),
       do: (): void => {
+        useFamiliar($familiar`Chest Mimic`);
         if (useCenser) {
           MayamCalendar.submit(MayamCalendar.toCombinationString(["fur", "yam2", "wall", "yam4"]));
         } else {
