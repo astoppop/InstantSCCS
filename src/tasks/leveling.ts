@@ -532,7 +532,35 @@ export const LevelingQuest: Quest = {
       do: () => prepareCodpiece("Cold Resistance"),
       limit: { tries: 1 },
     },
-
+    {
+      name: "Map for BOFA Cold Res",
+      prepare: (): void => {
+        PeridotOfPeril.setChoice($monster`sleeping Knob Goblin Guard`);
+      },
+      completed: () =>
+        myClass() != $class`Seal Clubber` ||
+        !have($skill`Map the Monsters`) ||
+        get("_monstersMapped") >= 3 ||
+        have($effect`Imagining Guts`),
+      do: () => $location`The Outskirts of Cobb's Knob`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`)
+          .trySkill($skill`Chest X-Ray`)
+          .trySkill($skill`Shattering Punch`)
+          .attack(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(false),
+        acc1:
+          have($item`Everfull Dart Holster`) && !have($effect`Everything Looks Red`)
+            ? $item`Everfull Dart Holster`
+            : undefined,
+        acc2: $item`Lil' Doctor™ bag`,
+        acc3: $item`Peridot of Peril`,
+        modifier: `${baseOutfit().modifier}, -equip miniature crystal ball, -equip backup camera, -equip Kramco Sausage-o-Matic™`,
+      }),
+      limit: { tries: 1 },
+    },
     {
       name: "Mayam Calendar (Leveling)",
       completed: () =>
