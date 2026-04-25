@@ -26,7 +26,6 @@ import {
   myBasestat,
   myClass,
   myFamiliar,
-  myHash,
   myHp,
   myInebriety,
   myLevel,
@@ -99,12 +98,10 @@ import {
   baseBoozes,
   baseOutfit,
   bestShadowRift,
-  burnLibram,
   canAcquireDwellingBuff,
   canPull,
   canScreech,
   chooseFamiliar,
-  chooseLibram,
   completedPowerleveling,
   craftedCBBEffects,
   craftedCBBFoods,
@@ -127,7 +124,6 @@ import {
   haveAndNotExcluded,
   haveCBBIngredients,
   haveFreeBanish,
-  havePowerlevelingZoneBound,
   haveWishes,
   legendarySealClubbingClub,
   LOVEquip,
@@ -135,7 +131,6 @@ import {
   mainStatMaximizerStr,
   mainStatStr,
   mobiusRing,
-  overleveled,
   powerlevelingLocation,
   prepareCodpiece,
   prismaticEffects,
@@ -146,7 +141,6 @@ import {
   reagentBoosterIngredient,
   reagentBoosterItem,
   reduceItemUndefinedArray,
-  refillLatte,
   romanCandelabra,
   sellMiscellaneousItems,
   sendAutumnaton,
@@ -1611,6 +1605,23 @@ export const LevelingQuest: Quest = {
       limit: { tries: 13 },
     },
     {
+      name: "Drink Bee's Knees",
+      completed: () =>
+        acquiredOrExcluded($effect`On the Trolley`) || get("instant_saveBeesKnees", false),
+      do: (): void => {
+        if (myMeat() < 500) throw new Error("Insufficient Meat to purchase Bee's Knees!");
+        tryAcquiringOdeToBooze();
+        visitUrl(`clan_viplounge.php?preaction=speakeasydrink&drink=5&pwd=${myHash()}`); // Bee's Knees
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Acquire Lyle's Buff",
+      completed: () => acquiredOrExcluded($effect`Favored by Lyle`) || get("_lyleFavored"),
+      do: () => tryAcquiringEffects($effects`Favored by Lyle, Starry-Eyed`),
+      limit: { tries: 1 },
+    },
+    {
       name: "Kramco",
       prepare: (): void => {
         restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
@@ -1863,53 +1874,53 @@ export const LevelingQuest: Quest = {
         sellMiscellaneousItems();
       },
     },
-    {
-      name: "Powerlevel",
-      completed: () => completedPowerleveling(),
-      do: powerlevelingLocation(),
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        tryAcquiringEffects(usefulEffects);
-        attemptRestoringMpWithFreeRests(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
-      },
-      outfit: () => ({
-        ...baseOutfit(),
-        back: get("_batWingsFreeFights") < 5 ? $item`bat wings` : undefined,
-        shirt: garbageShirt(),
-        offhand: $item`unbreakable umbrella`,
-        acc3: mobiusRing(),
-        modes: { umbrella: "broken" },
-      }),
-      limit: { tries: 60 },
-      choices: {
-        1094: 5,
-        1115: 6,
-        1322: 2,
-        1324: 5,
-      },
-      combat: new CombatStrategy().macro(
-        Macro.if_(
-          $monster`time cop`,
-          Macro.tryItem($item`red rocket`)
-            .trySkill($skill`Bowl Sideways`)
-            .default(useCinch),
-        )
-          .trySkill($skill`Sea *dent: Talk to Some Fish`)
-          .tryItem($item`red rocket`)
-          .trySkill($skill`Bowl Sideways`)
-          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
-          .default(useCinch),
-      ),
-      post: (): void => {
-        haveCBBIngredients(false, true);
-        if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
-        sendAutumnaton();
-        sellMiscellaneousItems();
-      },
-    },
+    // {
+    //   name: "Powerlevel",
+    //   completed: () => completedPowerleveling(),
+    //   do: powerlevelingLocation(),
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     tryAcquiringEffects(usefulEffects);
+    //     attemptRestoringMpWithFreeRests(50);
+    //     if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
+    //       if (myMeat() >= 250) buy($item`red rocket`, 1);
+    //     }
+    //   },
+    //   outfit: () => ({
+    //     ...baseOutfit(),
+    //     back: get("_batWingsFreeFights") < 5 ? $item`bat wings` : undefined,
+    //     shirt: garbageShirt(),
+    //     offhand: $item`unbreakable umbrella`,
+    //     acc3: mobiusRing(),
+    //     modes: { umbrella: "broken" },
+    //   }),
+    //   limit: { tries: 60 },
+    //   choices: {
+    //     1094: 5,
+    //     1115: 6,
+    //     1322: 2,
+    //     1324: 5,
+    //   },
+    //   combat: new CombatStrategy().macro(
+    //     Macro.if_(
+    //       $monster`time cop`,
+    //       Macro.tryItem($item`red rocket`)
+    //         .trySkill($skill`Bowl Sideways`)
+    //         .default(useCinch),
+    //     )
+    //       .trySkill($skill`Sea *dent: Talk to Some Fish`)
+    //       .tryItem($item`red rocket`)
+    //       .trySkill($skill`Bowl Sideways`)
+    //       .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+    //       .default(useCinch),
+    //   ),
+    //   post: (): void => {
+    //     haveCBBIngredients(false, true);
+    //     if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
+    //     sendAutumnaton();
+    //     sellMiscellaneousItems();
+    //   },
+    // },
     {
       name: "Free Fight Pulls",
       completed: () =>
@@ -1985,24 +1996,6 @@ export const LevelingQuest: Quest = {
 
         triedCraftingCBBFoods = true;
       },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Drink Bee's Knees",
-      after: ["Powerlevel"],
-      completed: () =>
-        acquiredOrExcluded($effect`On the Trolley`) || get("instant_saveBeesKnees", false),
-      do: (): void => {
-        if (myMeat() < 500) throw new Error("Insufficient Meat to purchase Bee's Knees!");
-        tryAcquiringOdeToBooze();
-        visitUrl(`clan_viplounge.php?preaction=speakeasydrink&drink=5&pwd=${myHash()}`); // Bee's Knees
-      },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Acquire Lyle's Buff",
-      completed: () => acquiredOrExcluded($effect`Favored by Lyle`) || get("_lyleFavored"),
-      do: () => tryAcquiringEffects($effects`Favored by Lyle, Starry-Eyed`),
       limit: { tries: 1 },
     },
     {
@@ -2171,85 +2164,85 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Free Kills and More Fights",
-      after: ["Craft and Eat CBB Foods", "Drink Bee's Knees"],
-      prepare: (): void => {
-        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
-        tryAcquiringEffects(usefulEffects);
-        attemptRestoringMpWithFreeRests(50);
-      },
-      outfit: () => ({
-        ...baseOutfit(),
-        shirt: garbageShirt(),
-        weapon: legendarySealClubbingClub("Time", true),
-        offhand: reduceItemUndefinedArray([
-          chooseLibram() !== $skill.none && get("_latteRefillsUsed") < 3
-            ? $item`latte lovers member's mug`
-            : undefined,
-          $item`unbreakable umbrella`,
-        ]),
-        acc3: docBag(),
-        modes: { umbrella: "broken" },
-      }),
-      completed: () =>
-        myBasestat(mainStat) >= targetBaseMainStat &&
-        (get("_clubEmTimeUsed", 0) >= 5 - get("instant_saveClubEmTime", 0) ||
-          !have($item`legendary seal-clubbing club`) ||
-          !havePowerlevelingZoneBound()) &&
-        (get("_shatteringPunchUsed") >= 3 || !have($skill`Shattering Punch`)) &&
-        (get("_gingerbreadMobHitUsed") || !have($skill`Gingerbread Mob Hit`)) &&
-        (haveCBBIngredients(true) || overleveled()),
-      do: powerlevelingLocation(),
-      combat: new CombatStrategy().macro(
-        Macro.if_($monster`time cop`, Macro.default(useCinch))
-          .trySkill($skill`Sea *dent: Talk to Some Fish`)
-          .trySkill($skill`Feel Pride`)
-          .trySkill($skill`Cincho: Confetti Extravaganza`)
-          .trySkill($skill`Gulp Latte`)
-          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
-          .trySkill($skill`Chest X-Ray`)
+    // {
+    //   name: "Free Kills and More Fights",
+    //   after: ["Craft and Eat CBB Foods", "Drink Bee's Knees"],
+    //   prepare: (): void => {
+    //     restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+    //     tryAcquiringEffects(usefulEffects);
+    //     attemptRestoringMpWithFreeRests(50);
+    //   },
+    //   outfit: () => ({
+    //     ...baseOutfit(),
+    //     shirt: garbageShirt(),
+    //     weapon: legendarySealClubbingClub("Time", true),
+    //     offhand: reduceItemUndefinedArray([
+    //       chooseLibram() !== $skill.none && get("_latteRefillsUsed") < 3
+    //         ? $item`latte lovers member's mug`
+    //         : undefined,
+    //       $item`unbreakable umbrella`,
+    //     ]),
+    //     acc3: docBag(),
+    //     modes: { umbrella: "broken" },
+    //   }),
+    //   completed: () =>
+    //     myBasestat(mainStat) >= targetBaseMainStat &&
+    //     (get("_clubEmTimeUsed", 0) >= 5 - get("instant_saveClubEmTime", 0) ||
+    //       !have($item`legendary seal-clubbing club`) ||
+    //       !havePowerlevelingZoneBound()) &&
+    //     (get("_shatteringPunchUsed") >= 3 || !have($skill`Shattering Punch`)) &&
+    //     (get("_gingerbreadMobHitUsed") || !have($skill`Gingerbread Mob Hit`)) &&
+    //     (haveCBBIngredients(true) || overleveled()),
+    //   do: powerlevelingLocation(),
+    //   combat: new CombatStrategy().macro(
+    //     Macro.if_($monster`time cop`, Macro.default(useCinch))
+    //       .trySkill($skill`Sea *dent: Talk to Some Fish`)
+    //       .trySkill($skill`Feel Pride`)
+    //       .trySkill($skill`Cincho: Confetti Extravaganza`)
+    //       .trySkill($skill`Gulp Latte`)
+    //       .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
+    //       .trySkill($skill`Chest X-Ray`)
 
-          .trySkill($skill`Club 'Em Back in Time`)
-          .trySkill($skill`Shattering Punch`)
-          .trySkill($skill`Gingerbread Mob Hit`)
-          .trySkill($skill`Bowl Sideways`)
-          .default(useCinch),
-      ),
-      choices: {
-        1094: 5,
-        1115: 6,
-        1322: 2,
-        1324: 5,
-      },
-      post: (): void => {
-        if (
-          itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
-          itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
-          !acquiredOrExcluded($effect`Pretty Delicious`) &&
-          !get("instant_saveRicottaCasserole", false)
-        ) {
-          if (!have($item`baked veggie ricotta casserole`))
-            create($item`baked veggie ricotta casserole`, 1);
-          eat($item`baked veggie ricotta casserole`, 1);
-        }
-        if (
-          itemAmount($item`St. Sneaky Pete's Whey`) >= 1 &&
-          !acquiredOrExcluded($effect`Awfully Wily`) &&
-          !get("instant_saveWileyWheyBar", false)
-        ) {
-          create($item`Pete's wiley whey bar`, 1);
-          eat($item`Pete's wiley whey bar`, 1);
-        }
-        haveCBBIngredients(true, true);
-        if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
-        sendAutumnaton();
-        sellMiscellaneousItems();
-        burnLibram(500);
-        refillLatte();
-      },
-      limit: { tries: 22 },
-    },
+    //       .trySkill($skill`Club 'Em Back in Time`)
+    //       .trySkill($skill`Shattering Punch`)
+    //       .trySkill($skill`Gingerbread Mob Hit`)
+    //       .trySkill($skill`Bowl Sideways`)
+    //       .default(useCinch),
+    //   ),
+    //   choices: {
+    //     1094: 5,
+    //     1115: 6,
+    //     1322: 2,
+    //     1324: 5,
+    //   },
+    //   post: (): void => {
+    //     if (
+    //       itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
+    //       itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
+    //       !acquiredOrExcluded($effect`Pretty Delicious`) &&
+    //       !get("instant_saveRicottaCasserole", false)
+    //     ) {
+    //       if (!have($item`baked veggie ricotta casserole`))
+    //         create($item`baked veggie ricotta casserole`, 1);
+    //       eat($item`baked veggie ricotta casserole`, 1);
+    //     }
+    //     if (
+    //       itemAmount($item`St. Sneaky Pete's Whey`) >= 1 &&
+    //       !acquiredOrExcluded($effect`Awfully Wily`) &&
+    //       !get("instant_saveWileyWheyBar", false)
+    //     ) {
+    //       create($item`Pete's wiley whey bar`, 1);
+    //       eat($item`Pete's wiley whey bar`, 1);
+    //     }
+    //     haveCBBIngredients(true, true);
+    //     if (have($item`SMOOCH coffee cup`)) chew($item`SMOOCH coffee cup`, 1);
+    //     sendAutumnaton();
+    //     sellMiscellaneousItems();
+    //     burnLibram(500);
+    //     refillLatte();
+    //   },
+    //   limit: { tries: 22 },
+    // },
     {
       name: "Open wardrobe-o-matic", // Assume we won't be leveling any more, even in aftercore, for the rest of the day
       completed: () =>
