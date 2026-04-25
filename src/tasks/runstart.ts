@@ -30,13 +30,10 @@ import {
   myMp,
   mySoulsauce,
   numericModifier,
-  print,
   restoreHp,
   retrieveItem,
   reverseNumberology,
   runChoice,
-  storageAmount,
-  takeStorage,
   toInt,
   totalFreeRests,
   turnsPlayed,
@@ -348,27 +345,27 @@ export const RunStartQuest: Quest = {
       },
       outfit: { modifier: "myst, mp, -tie" },
     },
-    {
-      name: "Borrowed Time",
-      prepare: (): void => {
-        if (have($item`borrowed time`)) return;
-        if (have($skill`Summon Clip Art`) && get("tomeSummons") < 3)
-          create($item`borrowed time`, 1);
-        else takeStorage($item`borrowed time`, 1);
-      },
-      completed: () => get("_borrowedTimeUsed"),
-      do: (): void => {
-        if (storageAmount($item`borrowed time`) === 0 && !have($item`borrowed time`)) {
-          print("Uh oh! You do not seem to have a borrowed time in Hagnk's", "red");
-          print(
-            "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
-            "red",
-          );
-        }
-        use($item`borrowed time`, 1);
-      },
-      limit: { tries: 1 },
-    },
+    // {
+    //   name: "Borrowed Time",
+    //   prepare: (): void => {
+    //     if (have($item`borrowed time`)) return;
+    //     if (have($skill`Summon Clip Art`) && get("tomeSummons") < 3)
+    //       create($item`borrowed time`, 1);
+    //     else takeStorage($item`borrowed time`, 1);
+    //   },
+    //   completed: () => get("_borrowedTimeUsed"),
+    //   do: (): void => {
+    //     if (storageAmount($item`borrowed time`) === 0 && !have($item`borrowed time`)) {
+    //       print("Uh oh! You do not seem to have a borrowed time in Hagnk's", "red");
+    //       print(
+    //         "Try to purchase one from the mall with your meat from Hagnk's before re-running instantsccs",
+    //         "red",
+    //       );
+    //     }
+    //     use($item`borrowed time`, 1);
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Numberology",
       ready: () => Object.keys(reverseNumberology()).includes("69"),
