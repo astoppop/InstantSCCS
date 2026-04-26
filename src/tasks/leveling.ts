@@ -1294,6 +1294,39 @@ export const LevelingQuest: Quest = {
       }),
     },
     {
+      name: "Mimic Factory Worker (female)",
+      prepare: (): void => {
+        restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
+      },
+      completed: () =>
+        get("instant_saveMimicEggs", false) ||
+        get("_mimicEggsObtained") > 0 ||
+        !have($familiar`Chest Mimic`) ||
+        (!(have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) &&
+          !(have($item`Apriling band piccolo`) && get("_aprilBandPiccoloUses") < 3)),
+      do: (): void => {
+        const currentFamiliar = myFamiliar();
+        if (have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) {
+          useFamiliar($familiar`Shorter-Order Cook`);
+          equip($slot`familiar`, $item`blue plate`);
+        }
+
+        const factoryWorker = $monster`factory worker (female)`;
+
+        useFamiliar($familiar`Chest Mimic`);
+        ChestMimic.receive(factoryWorker);
+        useFamiliar(currentFamiliar);
+        ChestMimic.differentiate(factoryWorker);
+      },
+      combat: new CombatStrategy().macro(Macro.trySkill($skill`Use the Force`).abort()),
+      outfit: () => ({
+        ...baseOutfit(false),
+        weapon: $item`Fourth of May Cosplay Saber`,
+      }),
+      choices: { 1387: 3 },
+      limit: { tries: 1 },
+    },
+    {
       name: "Mimic Black Crayon Frat Orcs",
       ready: () =>
         (have($item`legendary seal-clubbing club`) && !have($item`Kramco Sausage-o-Matic™`)) ||
@@ -1305,7 +1338,7 @@ export const LevelingQuest: Quest = {
       },
       completed: () =>
         get("instant_saveMimicEggs", false) ||
-        get("_mimicEggsObtained") > 0 ||
+        get("_mimicEggsObtained") > 1 ||
         !have($familiar`Chest Mimic`) ||
         (!(have($familiar`Shorter-Order Cook`) && have($item`blue plate`)) &&
           !(have($item`Apriling band piccolo`) && get("_aprilBandPiccoloUses") < 3)),
