@@ -14,6 +14,7 @@ import {
   getCampground,
   getDwelling,
   getWorkshed,
+  handlingChoice,
   haveEffect,
   holiday,
   inebrietyLimit,
@@ -102,7 +103,6 @@ import {
   canPull,
   canScreech,
   chooseFamiliar,
-  completedPowerleveling,
   crystalBallFreeFightLocation,
   currentBusk,
   cyberRealmTurnsAvailable,
@@ -747,6 +747,12 @@ export const LevelingQuest: Quest = {
       limit: { tries: 1 },
     },
     {
+      name: "Eat Pizza",
+      completed: () => get("pizzaOfLegendEaten") || !have($item`Pizza of Legend`),
+      do: () => eat($item`Pizza of Legend`, 1),
+      limit: { tries: 1 },
+    },
+    {
       name: "Cast Prevent Scurvy",
       completed: () => !have($skill`Prevent Scurvy and Sobriety`) || get("_preventScurvy"),
       prepare: () => attemptRestoringMpWithFreeRests(mpCost($skill`Prevent Scurvy and Sobriety`)),
@@ -813,13 +819,6 @@ export const LevelingQuest: Quest = {
       ready: () => have($effect`Everything Looks Blue`) && get("hasRange") && myMeat() >= 1000,
       completed: () => have($item`oversized sparkler`),
       do: () => buy($item`oversized sparkler`, 1),
-      limit: { tries: 1 },
-    },
-    {
-      name: "Eat Pizza",
-      ready: () => have($effect`Ready to Eat`), // only eat this after we red rocket
-      completed: () => get("pizzaOfLegendEaten") || !have($item`Pizza of Legend`),
-      do: () => eat($item`Pizza of Legend`, 1),
       limit: { tries: 1 },
     },
     {
@@ -1150,9 +1149,6 @@ export const LevelingQuest: Quest = {
       prepare: (): void => {
         restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
         attemptRestoringMpWithFreeRests(50);
-        if (!have($effect`Everything Looks Red`) && !have($item`red rocket`)) {
-          if (myMeat() >= 250) buy($item`red rocket`, 1);
-        }
       },
       completed: () =>
         have($item`Rufus's shadow lodestone`) ||
@@ -1160,9 +1156,7 @@ export const LevelingQuest: Quest = {
         !have($item`closed-circuit pay phone`),
       do: bestShadowRift(),
       combat: new CombatStrategy().macro(
-        Macro.tryItem($item`red rocket`)
-          .trySkill($skill`Recall Facts: %phylum Circadian Rhythms`)
-          .default(useCinch),
+        Macro.trySkill($skill`Recall Facts: %phylum Circadian Rhythms`).default(useCinch),
       ),
       outfit: () => ({
         ...baseOutfit(),
@@ -1320,14 +1314,20 @@ export const LevelingQuest: Quest = {
         ...baseOutfit(false),
         weapon: $item`Fourth of May Cosplay Saber`,
       }),
+      post: (): void => {
+        visitUrl("main.php");
+        if (handlingChoice()) {
+          runChoice(get("choiceAdventure1387", 3));
+        }
+      },
       choices: { 1387: 3 },
       limit: { tries: 1 },
     },
     {
       name: "Mimic Black Crayon Frat Orcs",
-      ready: () =>
-        (have($item`legendary seal-clubbing club`) && !have($item`Kramco Sausage-o-Matic™`)) ||
-        completedPowerleveling(),
+      // ready: () =>
+      //   (have($item`legendary seal-clubbing club`) && !have($item`Kramco Sausage-o-Matic™`)) ||
+      //   completedPowerleveling(),
       prepare: (): void => {
         restoreHp(clamp(1000, myMaxhp() / 2, myMaxhp()));
         tryAcquiringEffects(usefulEffects);
@@ -1641,8 +1641,8 @@ export const LevelingQuest: Quest = {
       completed: () =>
         !have($item`backup camera`) ||
         !freeFightMonsters.includes(get("lastCopyableMonster") ?? $monster.none) ||
-        get("_backUpUses") >= 11 - clamp(get("instant_saveBackups", 0), 0, 11) ||
-        myBasestat(mainStat) >= 190, // no longer need to back up Witchess Kings
+        get("_backUpUses") >= 11 - clamp(get("instant_saveBackups", 0), 0, 11),
+      // myBasestat(mainStat) >= 190, // no longer need to back up Witchess Kings
       do: $location`The Dire Warren`,
       combat: new CombatStrategy().macro(
         Macro.if_($monster`time cop`, Macro.default(useCinch))

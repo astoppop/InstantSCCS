@@ -1162,7 +1162,7 @@ export const RunStartQuest: Quest = {
           AprilingBandHelmet.play($item`Apriling band saxophone`);
         if (!have($effect`Lucky!`)) use($item`11-leaf clover`);
         if (!have($item`distilled fortified wine`)) adv1($location`The Sleazy Back Alley`, -1);
-        while (have($item`distilled fortified wine`) && myInebriety() < 1) {
+        while (have($item`distilled fortified wine`) && myInebriety() < 3) {
           tryAcquiringOdeToBooze();
           drink($item`distilled fortified wine`, 1);
         }
