@@ -10,7 +10,6 @@ import {
   drink,
   eat,
   Effect,
-  effectModifier,
   equip,
   getCampground,
   getDwelling,
@@ -104,8 +103,6 @@ import {
   canScreech,
   chooseFamiliar,
   completedPowerleveling,
-  craftedCBBEffects,
-  craftedCBBFoods,
   crystalBallFreeFightLocation,
   currentBusk,
   cyberRealmTurnsAvailable,
@@ -2033,35 +2030,35 @@ export const LevelingQuest: Quest = {
       },
       limit: { tries: 1 },
     },
-    {
-      name: "Craft and Eat CBB Foods",
-      after: ["Powerlevel"],
-      completed: () =>
-        craftedCBBEffects.every((ef) => acquiredOrExcluded(ef)) || triedCraftingCBBFoods,
-      do: (): void => {
-        craftedCBBFoods.forEach((it) => {
-          const ef = effectModifier(it, "effect");
-          if (!acquiredOrExcluded(ef)) {
-            if (!have(it)) create(it, 1);
-            eat(it, 1);
-          }
-        });
+    // {
+    //   name: "Craft and Eat CBB Foods",
+    //   after: ["Powerlevel"],
+    //   completed: () =>
+    //     craftedCBBEffects.every((ef) => acquiredOrExcluded(ef)) || triedCraftingCBBFoods,
+    //   do: (): void => {
+    //     craftedCBBFoods.forEach((it) => {
+    //       const ef = effectModifier(it, "effect");
+    //       if (!acquiredOrExcluded(ef)) {
+    //         if (!have(it)) create(it, 1);
+    //         eat(it, 1);
+    //       }
+    //     });
 
-        if (
-          itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
-          itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
-          !acquiredOrExcluded($effect`Pretty Delicious`) &&
-          !get("instant_saveRicottaCasserole", false)
-        ) {
-          if (!have($item`baked veggie ricotta casserole`))
-            create($item`baked veggie ricotta casserole`, 1);
-          eat($item`baked veggie ricotta casserole`, 1);
-        }
+    //     if (
+    //       itemAmount($item`Vegetable of Jarlsberg`) >= 2 &&
+    //       itemAmount($item`St. Sneaky Pete's Whey`) >= 2 &&
+    //       !acquiredOrExcluded($effect`Pretty Delicious`) &&
+    //       !get("instant_saveRicottaCasserole", false)
+    //     ) {
+    //       if (!have($item`baked veggie ricotta casserole`))
+    //         create($item`baked veggie ricotta casserole`, 1);
+    //       eat($item`baked veggie ricotta casserole`, 1);
+    //     }
 
-        triedCraftingCBBFoods = true;
-      },
-      limit: { tries: 1 },
-    },
+    //     triedCraftingCBBFoods = true;
+    //   },
+    //   limit: { tries: 1 },
+    // },
     {
       name: "Cross Streams",
       completed: () =>
