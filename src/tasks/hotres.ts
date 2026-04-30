@@ -325,6 +325,7 @@ export const HotResQuest: Quest = {
           $effect`Blood Bond`,
           $effect`Empathy`,
           $effect`Leash of Linguini`,
+          $effect`Party Soundtrack`,
           $effect`Robot Friends`,
           $effect`Thoughtful Empathy`,
         ];
