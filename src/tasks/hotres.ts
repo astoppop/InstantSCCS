@@ -6,6 +6,7 @@ import {
   drink,
   Effect,
   getCampground,
+  getWorkshed,
   inebrietyLimit,
   itemAmount,
   myInebriety,
@@ -26,19 +27,28 @@ import {
   CommunityService,
   get,
   have,
+  TrainSet,
   uneffect,
 } from "libram";
+import {
+  canConfigure,
+  Cycle,
+  setConfiguration,
+  Station,
+} from "libram/dist/resources/2022/TrainSet";
 import Macro from "../combat";
 import { Quest } from "../engine/task";
 import {
   acquiredOrExcluded,
   acquireDwellingBuff,
+  baseOutfit,
   canAcquireDwellingBuff,
   chooseFamiliar,
   handleCustomBusks,
   handleCustomPulls,
   handleCustomWishes,
   haveAndNotExcluded,
+  mainStatStr,
   prepareCodpiece,
   runTest,
   tryAcquiringEffect,
@@ -54,6 +64,71 @@ export const HotResQuest: Quest = {
   name: "Hot Res",
   completed: () => CommunityService.HotRes.isDone(),
   tasks: [
+    {
+      name: "Free Run for Hot Res",
+      completed: () => have($effect`Frozen`) || getWorkshed() !== $item`model train set`,
+      do: $location`The Dire Warren`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Spring Away`)
+          .trySkill($skill`Reflex Hammer`)
+          .trySkill($skill`Snokebomb`)
+          .abort(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`Lil' Doctor™ bag`,
+      }),
+      limit: { tries: 5 },
+    },
+    {
+      name: "Configure Trainset",
+      completed: () =>
+        !(getWorkshed() === $item`model train set`) ||
+        !canConfigure() ||
+        have($effect`Double Frozen`),
+      do: (): void => {
+        const offset = get("trainsetPosition") % 8;
+        const newStations: TrainSet.Station[] = [];
+        const statStation: Station = {
+          Muscle: Station.BRAWN_SILO,
+          Mysticality: Station.BRAIN_SILO,
+          Moxie: Station.GROIN_SILO,
+        }[mainStatStr];
+        const stations = [
+          Station.COAL_HOPPER, // double hot resist
+          Station.TOWER_FROZEN, // hot resist
+          Station.GAIN_MEAT, // meat
+          Station.TOWER_FIZZY, // mp regen
+          statStation, // main stats
+          Station.VIEWING_PLATFORM, // all stats
+          Station.WATER_BRIDGE, // +ML
+          Station.CANDY_FACTORY, // candies
+        ] as Cycle;
+        for (let i = 0; i < 8; i++) {
+          const newPos = (i + offset) % 8;
+          newStations[newPos] = stations[i];
+        }
+        setConfiguration(newStations as Cycle);
+      },
+      limit: { tries: 1 },
+    },
+    {
+      name: "Free Run for Hot Res Continued",
+      after: ["Configure Trainset"],
+      completed: () => have($effect`Double Frozen`) || getWorkshed() !== $item`model train set`,
+      do: $location`The Dire Warren`,
+      combat: new CombatStrategy().macro(
+        Macro.trySkill($skill`Spring Away`)
+          .trySkill($skill`Reflex Hammer`)
+          .trySkill($skill`Snokebomb`)
+          .abort(),
+      ),
+      outfit: () => ({
+        ...baseOutfit(),
+        acc1: $item`Lil' Doctor™ bag`,
+      }),
+      limit: { tries: 2 },
+    },
     {
       name: "Grab Spitball",
       completed: () =>

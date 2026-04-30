@@ -687,15 +687,13 @@ export const RunStartQuest: Quest = {
         use($item`model train set`);
         setConfiguration([
           Station.GAIN_MEAT, // meat (we don't gain meat during free banishes)
-          Station.TOWER_FIZZY, // mp regen
-          Station.TOWER_FROZEN, // hot resist (useful)
+          Station.TOWER_SEWAGE,
           Station.COAL_HOPPER, // double stat gain
           statStation, // main stats
           Station.VIEWING_PLATFORM, // all stats
           Station.WATER_BRIDGE, // +ML
-          have($item`Sept-Ember Censer`) && !get("instant_saveEmbers", false)
-            ? Station.TOWER_SEWAGE // cold res for mouthwash
-            : Station.CANDY_FACTORY, // candies (we don't get items during free banishes)
+          Station.TOWER_FROZEN, // hot resist (useful)
+          Station.CANDY_FACTORY, // candies (we don't get items during free banishes)
         ]);
       },
       limit: { tries: 1 },
