@@ -147,6 +147,8 @@ export const FamiliarWeightQuest: Quest = {
           $effect`Kindly Resolve`,
           $effect`Leash of Linguini`,
 
+          $effect`Party Soundtrack`,
+
           $effect`Only Dogs Love a Drunken Sailor`,
           $effect`Puzzle Champ`,
           $effect`Robot Friends`,

@@ -1537,7 +1537,7 @@ export const LevelingQuest: Quest = {
       name: "Restore Cinch",
       completed: () =>
         get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
-        get("_cinchUsed") <= 95 ||
+        get("_cinchUsed") <= 75 ||
         !useCinch ||
         (get("instant_skipCampgroundRestoration", false) &&
           !get("chateauAvailable") &&
