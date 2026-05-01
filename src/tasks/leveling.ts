@@ -36,7 +36,6 @@ import {
   myMp,
   mySoulsauce,
   print,
-  putCloset,
   refreshStatus,
   restoreHp,
   retrieveItem,
@@ -1196,18 +1195,14 @@ export const LevelingQuest: Quest = {
       name: "Use Reagent Balancer",
       ready: () => get("_loveTunnelUsed") || !get("loveTunnelAvailable"),
       completed: () =>
-        (!have(reagentBalancerIngredient) && itemAmount(reagentBalancerItem) <= 1) ||
-        acquiredOrExcluded(reagentBalancerEffect) ||
-        itemAmount(reagentBalancerItem) === 1,
+        (!have(reagentBalancerIngredient) && !have(reagentBalancerItem)) ||
+        acquiredOrExcluded(reagentBalancerEffect),
       do: (): void => {
         if (get("reagentSummons") === 0) useSkill($skill`Advanced Saucecrafting`, 1);
         if (!have(reagentBalancerItem)) {
           create(reagentBalancerItem, 1);
         }
-        if (itemAmount(reagentBalancerItem) > 1)
-          use(reagentBalancerItem, itemAmount(reagentBalancerItem) - 1);
-        if (have(reagentBalancerIngredient) && have(reagentBalancerEffect))
-          putCloset(itemAmount(reagentBalancerIngredient), reagentBalancerIngredient);
+        ensureEffect(reagentBalancerEffect);
       },
       limit: { tries: 1 },
     },
