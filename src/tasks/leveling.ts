@@ -663,9 +663,9 @@ export const LevelingQuest: Quest = {
         }
 
         // Use all the Mouthwashes we have (in case we also pulled any)
-        if (itemAmount($item`Mmm-brr! brand mouthwash`) > 0) {
+        while (itemAmount($item`Mmm-brr! brand mouthwash`) > 0) {
           cliExecute("maximize cold res");
-          use($item`Mmm-brr! brand mouthwash`, itemAmount($item`Mmm-brr! brand mouthwash`));
+          use($item`Mmm-brr! brand mouthwash`, 1);
         }
       },
       limit: { tries: 1 },
