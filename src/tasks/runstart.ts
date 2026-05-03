@@ -331,7 +331,7 @@ export const RunStartQuest: Quest = {
           (get("instant_skipCampgroundRestoration", false) &&
             !get("chateauAvailable") &&
             !get("getawayCampsiteUnlocked"))) &&
-        $effects`Mushed, It's Ridiculous`.every((ef) => !canAcquireDwellingBuff(ef)),
+        $effects`Mushed, It's Ridiculous`.every((ef) => canAcquireDwellingBuff(ef)),
       prepare: (): void => {
         if (have($item`Newbiesport™ tent`) && getDwelling() === $item`big rock`)
           use($item`Newbiesport™ tent`);
