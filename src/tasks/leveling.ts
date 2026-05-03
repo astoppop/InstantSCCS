@@ -819,6 +819,12 @@ export const LevelingQuest: Quest = {
       do: () => ensureEffect(generalStoreXpEffect),
     },
     {
+      name: "Acquire Lyle's Buff",
+      completed: () => acquiredOrExcluded($effect`Favored by Lyle`) || get("_lyleFavored"),
+      do: () => tryAcquiringEffects($effects`Favored by Lyle, Starry-Eyed`),
+      limit: { tries: 1 },
+    },
+    {
       name: "Buy Oversized Sparkler",
       ready: () => have($effect`Everything Looks Blue`) && get("hasRange") && myMeat() >= 1000,
       completed: () => have($item`oversized sparkler`),
@@ -1674,12 +1680,6 @@ export const LevelingQuest: Quest = {
         tryAcquiringOdeToBooze();
         visitUrl(`clan_viplounge.php?preaction=speakeasydrink&drink=5&pwd=${myHash()}`); // Bee's Knees
       },
-      limit: { tries: 1 },
-    },
-    {
-      name: "Acquire Lyle's Buff",
-      completed: () => acquiredOrExcluded($effect`Favored by Lyle`) || get("_lyleFavored"),
-      do: () => tryAcquiringEffects($effects`Favored by Lyle, Starry-Eyed`),
       limit: { tries: 1 },
     },
     {
