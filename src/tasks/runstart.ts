@@ -326,12 +326,12 @@ export const RunStartQuest: Quest = {
     {
       name: "Restore mp (Free Rests)",
       completed: () =>
-        (get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
-          myMp() >= Math.min(200, myMaxmp()) ||
-          (get("instant_skipCampgroundRestoration", false) &&
-            !get("chateauAvailable") &&
-            !get("getawayCampsiteUnlocked"))) &&
-        $effects`Mushed, It's Ridiculous`.every((ef) => canAcquireDwellingBuff(ef)),
+        get("timesRested") >= totalFreeRests() - get("instant_saveFreeRests", 0) ||
+        myMp() >= Math.min(200, myMaxmp()) ||
+        (get("instant_skipCampgroundRestoration", false) &&
+          !get("chateauAvailable") &&
+          !get("getawayCampsiteUnlocked")) ||
+        canAcquireDwellingBuff($effect`Mushed, It's Ridiculous`),
       prepare: (): void => {
         if (have($item`Newbiesport™ tent`) && getDwelling() === $item`big rock`)
           use($item`Newbiesport™ tent`);
