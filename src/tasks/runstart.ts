@@ -961,7 +961,7 @@ export const RunStartQuest: Quest = {
         PeridotOfPeril.setChoice($monster`novelty tropical skeleton`);
       },
       completed: () =>
-        mainStat === $stat`Moxie` || !have($item`Peridot of Peril`) || have($item`cherry`),
+        mainStat !== $stat`Mysticality` || !have($item`Peridot of Peril`) || have($item`cherry`),
       do: $location`The Skeleton Store`,
       choices: { 1060: 5 },
       combat: new CombatStrategy().macro(
@@ -1007,7 +1007,7 @@ export const RunStartQuest: Quest = {
         if (haveEquipped($item`miniature crystal ball`)) equip($slot`familiar`, $item.none);
       },
       completed: () =>
-        mainStat === $stat`Moxie` ||
+        mainStat !== $stat`Mysticality` ||
         !have($skill`Map the Monsters`) ||
         get("_monstersMapped") >= 3 ||
         have($item`cherry`) ||
@@ -1068,7 +1068,7 @@ export const RunStartQuest: Quest = {
         if (haveEquipped($item`miniature crystal ball`)) equip($slot`familiar`, $item.none);
       },
       completed: () =>
-        mainStat === $stat`Moxie` ||
+        mainStat !== $stat`Mysticality` ||
         (have($item`cherry`) &&
           ($location`The Skeleton Store`.turnsSpent >= 3 ||
             completedSkeletonBanishes() ||
