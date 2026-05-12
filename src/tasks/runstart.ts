@@ -1167,6 +1167,10 @@ export const RunStartQuest: Quest = {
           drink($item`distilled fortified wine`, 1);
         }
       },
+      outfit: () => ({
+        ...baseOutfit(),
+        modifier: `1 mp, 5 mp regen`,
+      }),
       limit: { tries: 1 },
     },
     {
